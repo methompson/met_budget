@@ -1,4 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:met_budget/ui/theme.dart';
 
 class BootStrapper extends StatefulWidget {
   final Widget app;
@@ -62,8 +64,14 @@ class BootStrapperState extends State<BootStrapper> {
 class BasicLoadingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: CupertinoActivityIndicator(),
+    return MaterialApp(
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      home: Scaffold(
+        body: Center(
+          child: CupertinoActivityIndicator(),
+        ),
+      ),
     );
   }
 }
@@ -75,8 +83,16 @@ class BasicErrorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text(message),
+    return MaterialApp(
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      home: Scaffold(
+        body: SingleChildScrollView(
+          child: Center(
+            child: Text(message),
+          ),
+        ),
+      ),
     );
   }
 }

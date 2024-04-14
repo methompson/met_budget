@@ -49,11 +49,10 @@ class BootStrapperState extends State<BootStrapper> {
   @override
   Widget build(BuildContext context) {
     if (finished) {
+      if (exception != null) {
+        return BasicErrorPage(exception.toString());
+      }
       return widget.app;
-    }
-
-    if (exception != null) {
-      BasicErrorPage(exception.toString());
     }
 
     return widget.loadingPage ?? BasicLoadingPage();

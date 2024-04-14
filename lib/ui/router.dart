@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
 import 'package:met_budget/ui/pages/login.dart';
 import 'package:met_budget/ui/pages/test.dart';
-import 'package:provider/provider.dart';
 
 // Pages
 // import 'package:met_budget/ui/pages/logging.dart';

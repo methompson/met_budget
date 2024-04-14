@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:met_budget/firebase_options.dart';
+import 'package:met_budget/global_state/budget_provider.dart';
 import 'package:met_budget/ui/router.dart';
 import 'package:met_budget/ui/theme.dart';
 import 'package:provider/provider.dart';
@@ -27,6 +28,7 @@ class ProvidersContainer extends StatelessWidget {
         ChangeNotifierProvider.value(value: LoggingProvider.instance),
         ChangeNotifierProvider.value(value: DataProvider.instance),
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
+        ChangeNotifierProvider(create: (_) => BudgetProvider()),
       ],
       child: _BootStrap(),
     );
@@ -44,6 +46,7 @@ class _BootStrap extends StatelessWidget {
 
   Future<void> initializeApp(BuildContext context) async {
     final authProvider = context.read<AuthenticationProvider>();
+    final bp = context.read<BudgetProvider>();
 
     await DataProvider.instance.init();
 
@@ -60,7 +63,7 @@ class _BootStrap extends StatelessWidget {
     await LoggingProvider.instance.init();
 
     if (currentUser != null) {
-      // init the budget here
+      await bp.init();
     }
   }
 }

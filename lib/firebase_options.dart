@@ -27,10 +27,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.macOS:
         return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -55,7 +52,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyALeGKhI-pl-OET1XdUX2L4pLH4z60eGSc',
-    appId: '1:731033508145:android:5c63ea9ba92011b4faf810',
+    appId: '1:731033508145:android:a14a7b43c35b4535faf810',
     messagingSenderId: '731033508145',
     projectId: 'methompson-site',
     storageBucket: 'methompson-site.appspot.com',
@@ -63,19 +60,30 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyD1SyTpu9MiOcCjwUqrjMrJ6-XCQzn1n_k',
-    appId: '1:731033508145:ios:2b33601b7f865a78faf810',
+    appId: '1:731033508145:ios:e82f9fe13314a192faf810',
     messagingSenderId: '731033508145',
     projectId: 'methompson-site',
     storageBucket: 'methompson-site.appspot.com',
-    iosBundleId: 'com.example.budgetApp',
+    iosBundleId: 'com.example.flutterBudget',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyD1SyTpu9MiOcCjwUqrjMrJ6-XCQzn1n_k',
-    appId: '1:731033508145:ios:be4a3192dfddd697faf810',
+    appId: '1:731033508145:ios:e82f9fe13314a192faf810',
     messagingSenderId: '731033508145',
     projectId: 'methompson-site',
     storageBucket: 'methompson-site.appspot.com',
-    iosBundleId: 'com.example.budgetApp.RunnerTests',
+    iosBundleId: 'com.example.flutterBudget',
   );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyA1fEORIAxMNxYRKSgiWpyCRt_7EUv2FBM',
+    appId: '1:731033508145:web:5b4bed4ee32a1b8dfaf810',
+    messagingSenderId: '731033508145',
+    projectId: 'methompson-site',
+    authDomain: 'methompson-site.firebaseapp.com',
+    storageBucket: 'methompson-site.appspot.com',
+    measurementId: 'G-CHC3JNRS3T',
+  );
+
 }

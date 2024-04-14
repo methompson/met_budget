@@ -1,15 +1,15 @@
-// import 'dart:async';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
-// import 'package:go_router/go_router.dart';
-// import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
-// import 'package:met_budget/global_state/logging_provider.dart';
-// import 'package:met_budget/global_state/budget_provider.dart';
-// import 'package:met_budget/ui/components/nav.dart';
-// import 'package:met_budget/utils/agent/agent.dart';
+import 'package:met_budget/global_state/logging_provider.dart';
+import 'package:met_budget/global_state/budget_provider.dart';
+import 'package:met_budget/ui/components/nav.dart';
+import 'package:met_budget/utils/agent/agent.dart';
 
-// import 'package:met_budget/ui/components/authentication_watcher.dart';
+import 'package:met_budget/ui/components/authentication_watcher.dart';
 
 class PageContainer extends StatelessWidget {
   final Widget child;
@@ -29,29 +29,29 @@ class PageContainer extends StatelessWidget {
   }
 }
 
-// class NavContainer extends StatelessWidget {
-//   final StatefulNavigationShell navigationShell;
-//   final PreferredSizeWidget? appBar;
+class NavContainer extends StatelessWidget {
+  final StatefulNavigationShell navigationShell;
+  final PreferredSizeWidget? appBar;
 
-//   NavContainer({
-//     required this.navigationShell,
-//     this.appBar,
-//   });
+  NavContainer({
+    required this.navigationShell,
+    this.appBar,
+  });
 
-//   @override
-//   Widget build(BuildContext context) {
-//     final padding = AgentGetter().isPWA() ? 25.0 : 0.0;
+  @override
+  Widget build(BuildContext context) {
+    final padding = AgentGetter().isPWA() ? 25.0 : 0.0;
 
-//     return Scaffold(
-//       appBar: appBar,
-//       body: SafeArea(child: AuthenticationWatcher(navigationShell)),
-//       bottomNavigationBar: Container(
-//         padding: EdgeInsets.only(bottom: padding, top: 1),
-//         child: NavBar(navigationShell: navigationShell),
-//       ),
-//     );
-//   }
-// }
+    return Scaffold(
+      appBar: appBar,
+      body: SafeArea(child: AuthenticationWatcher(navigationShell)),
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.only(bottom: padding, top: 1),
+        child: NavBar(navigationShell: navigationShell),
+      ),
+    );
+  }
+}
 
 class FullSizeContainer extends StatelessWidget {
   final Widget child;
@@ -89,90 +89,91 @@ class CenteredFullSizeContainer extends StatelessWidget {
   }
 }
 
-// class DataWatcher extends StatefulWidget {
-//   @override
-//   State createState() => DataWatcherState();
-// }
+class DataWatcher extends StatefulWidget {
+  @override
+  State createState() => DataWatcherState();
+}
 
-// class DataWatcherState extends State<DataWatcher> {
-//   Timer? _timer;
+class DataWatcherState extends State<DataWatcher> {
+  Timer? _timer;
 
-//   @override
-//   void initState() {
-//     super.initState();
+  @override
+  void initState() {
+    super.initState();
 
-//     getDataAndResetTimer();
-//   }
+    getDataAndResetTimer();
+  }
 
-//   @override
-//   void dispose() {
-//     super.dispose();
+  @override
+  void dispose() {
+    super.dispose();
 
-//     _timer?.cancel();
-//     _timer = null;
-//   }
+    _timer?.cancel();
+    _timer = null;
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Selector<ViceBankProvider, String?>(
-//       selector: (_, vbProvider) => vbProvider.currentUser?.id,
-//       builder: (_, userId, __) {
-//         if (userId == null) {
-//           _timer?.cancel();
-//           _timer = null;
-//         } else {
-//           getDataAndResetTimer();
-//         }
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+    // return Selector<BudgetProvider, String?>(
+    //   selector: (_, vbProvider) => vbProvider.currentUser?.id,
+    //   builder: (_, userId, __) {
+    //     if (userId == null) {
+    //       _timer?.cancel();
+    //       _timer = null;
+    //     } else {
+    //       getDataAndResetTimer();
+    //     }
 
-//         return Container();
-//       },
-//     );
-//   }
+    //     return Container();
+    //   },
+    // );
+  }
 
-//   Future<void> getDataAndResetTimer() async {
-//     _timer?.cancel();
-//     await getApiData();
-//     resetTimer();
-//   }
+  Future<void> getDataAndResetTimer() async {
+    _timer?.cancel();
+    // await getApiData();
+    resetTimer();
+  }
 
-//   void resetTimer() {
-//     _timer?.cancel();
-//     _timer = Timer(
-//       Duration(minutes: 10),
-//       getDataAndResetTimer,
-//     );
-//   }
+  void resetTimer() {
+    _timer?.cancel();
+    _timer = Timer(
+      Duration(minutes: 10),
+      getDataAndResetTimer,
+    );
+  }
 
-//   Future<void> getApiData() async {
-//     try {
-//       await Future.wait([
-//         getUserData(),
-//         getDataForUser(),
-//       ]);
-//     } catch (e) {
-//       LoggingProvider.instance.logError('Error getting data: $e');
-//     }
-//   }
+  // Future<void> getApiData() async {
+  //   try {
+  //     await Future.wait([
+  //       getUserData(),
+  //       getDataForUser(),
+  //     ]);
+  //   } catch (e) {
+  //     LoggingProvider.instance.logError('Error getting data: $e');
+  //   }
+  // }
 
-//   Future<void> getDataForUser() async {
-//     final vbProvider = context.read<ViceBankProvider>();
-//     if (vbProvider.currentUser == null) {
-//       return;
-//     }
+  // Future<void> getDataForUser() async {
+  //   final vbProvider = context.read<ViceBankProvider>();
+  //   if (vbProvider.currentUser == null) {
+  //     return;
+  //   }
 
-//     try {
-//       await vbProvider.getAllUserData();
-//     } catch (e) {
-//       LoggingProvider.instance.logError('Error getting user data: $e');
-//     }
-//   }
+  //   try {
+  //     await vbProvider.getAllUserData();
+  //   } catch (e) {
+  //     LoggingProvider.instance.logError('Error getting user data: $e');
+  //   }
+  // }
 
-//   Future<void> getUserData() async {
-//     final vbProvider = context.read<ViceBankProvider>();
-//     try {
-//       await vbProvider.getViceBankUsers();
-//     } catch (e) {
-//       LoggingProvider.instance.logError('Error getting user data: $e');
-//     }
-//   }
-// }
+  // Future<void> getUserData() async {
+  //   final vbProvider = context.read<ViceBankProvider>();
+  //   try {
+  //     await vbProvider.getViceBankUsers();
+  //   } catch (e) {
+  //     LoggingProvider.instance.logError('Error getting user data: $e');
+  //   }
+  // }
+}

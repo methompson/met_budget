@@ -2,12 +2,12 @@ import 'package:uuid/uuid.dart';
 
 import 'package:met_budget/utils/type_checker.dart';
 
-class Category {
+class ExpenseCategory {
   final String id;
   final String budgetId;
   final String name;
 
-  Category({
+  ExpenseCategory({
     required this.id,
     required this.budgetId,
     required this.name,
@@ -21,18 +21,18 @@ class Category {
     };
   }
 
-  factory Category.newCategory({
+  factory ExpenseCategory.newCategory({
     required String budgetId,
     required String name,
   }) {
-    return Category(
+    return ExpenseCategory(
       id: Uuid().v4(),
       budgetId: budgetId,
       name: name,
     );
   }
 
-  factory Category.fromJson(dynamic input) {
+  factory ExpenseCategory.fromJson(dynamic input) {
     const errMsg = 'Category.fromJson Failed:';
 
     final json = isTypeError<Map>(
@@ -53,7 +53,7 @@ class Category {
       message: '$errMsg name',
     );
 
-    return Category(
+    return ExpenseCategory(
       id: id,
       budgetId: budgetId,
       name: name,

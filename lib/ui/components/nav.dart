@@ -14,14 +14,14 @@ class NavBar extends StatelessWidget {
           icon: Icon(CupertinoIcons.home),
           label: 'Home',
         ),
-        // BottomNavigationBarItem(
-        //   icon: Icon(CupertinoIcons.arrow_up_circle),
-        //   label: 'Deposits',
-        // ),
-        // BottomNavigationBarItem(
-        //   icon: Icon(CupertinoIcons.arrow_down_circle),
-        //   label: 'Withdrawals',
-        // ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.money_dollar_circle),
+          label: 'Expenses',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.arrow_up_arrow_down_circle),
+          label: 'Transactions',
+        ),
         BottomNavigationBarItem(
           icon: Icon(CupertinoIcons.settings),
           label: 'Settings',

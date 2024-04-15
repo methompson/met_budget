@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
+import 'package:met_budget/ui/pages/expenses.dart';
+import 'package:met_budget/ui/pages/transactions.dart';
 import 'package:provider/provider.dart';
 
 import 'package:met_budget/ui/pages/login.dart';
@@ -71,24 +73,24 @@ final router = GoRouter(
                 ),
               ],
             ),
-            //     StatefulShellBranch(
-            //       routes: [
-            //         GoRoute(
-            //           name: 'deposits',
-            //           path: '/deposits',
-            //           builder: (_, __) => DepositsPage(),
-            //         ),
-            //       ],
-            //     ),
-            //     StatefulShellBranch(
-            //       routes: [
-            //         GoRoute(
-            //           name: 'withdrawals',
-            //           path: '/withdrawals',
-            //           builder: (_, __) => WithdrawalsPage(),
-            //         ),
-            //       ],
-            //     ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  name: 'expenses',
+                  path: '/expenses',
+                  builder: (_, __) => ExpensesPage(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  name: 'transactions',
+                  path: '/transactions',
+                  builder: (_, __) => TransactionsPage(),
+                ),
+              ],
+            ),
             StatefulShellBranch(
               routes: [
                 GoRoute(

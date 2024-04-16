@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:met_budget/ui/components/settings/debug_buttons.dart';
 import 'package:provider/provider.dart';
 
 import 'package:met_budget/global_state/authentication_provider.dart';
@@ -61,9 +62,9 @@ class CommonMargin extends StatelessWidget {
 class SettingsContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // final configProvider = context.watch<ConfigProvider>();
-    // final bp = context.watch<BudgetProvider>();
-    // final debugMode = configProvider.getConfig('debugMode').boolean;
+    final configProvider = context.watch<ConfigProvider>();
+    final bp = context.watch<BudgetProvider>();
+    final debugMode = configProvider.getConfig('debugMode').boolean;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -100,30 +101,30 @@ class SettingsContent extends StatelessWidget {
           topMargin: 10,
           bottomMargin: 10,
         )),
-        // if (debugMode) ...debugWidgets(context),
+        if (debugMode) ...debugWidgets(context),
       ],
     );
   }
 
-  // List<Widget> debugWidgets(BuildContext context) {
-  //   return [
-  //     Divider(),
-  //     CommonMargin(Column(
-  //       crossAxisAlignment: CrossAxisAlignment.stretch,
-  //       children: [
-  //         Text(
-  //           'Debug Buttons',
-  //           style: Theme.of(context).copyWith().textTheme.headlineMedium,
-  //         ),
-  //         DebugButtons(),
-  //       ],
-  //     )),
-  //     ThemeColors(),
-  //     Card.filled(
-  //       child: ThemeColors(),
-  //     ),
-  //   ];
-  // }
+  List<Widget> debugWidgets(BuildContext context) {
+    return [
+      Divider(),
+      CommonMargin(Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Debug Buttons',
+            style: Theme.of(context).copyWith().textTheme.headlineMedium,
+          ),
+          DebugButtons(),
+        ],
+      )),
+      ThemeColors(),
+      //     Card.filled(
+      //       child: ThemeColors(),
+      //     ),
+    ];
+  }
 
   // Future<void> clearCache(BuildContext context) async {
   //   final vbProvider = context.read<ViceBankProvider>();

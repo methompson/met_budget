@@ -1,5 +1,6 @@
-import 'package:met_budget/utils/type_checker.dart';
 import 'package:uuid/uuid.dart';
+
+import 'package:met_budget/utils/type_checker.dart';
 
 class DepositTransaction {
   final String id;

@@ -1,3 +1,4 @@
+import 'package:met_budget/utils/8601_date.dart';
 import 'package:met_budget/utils/type_checker.dart';
 import 'package:uuid/uuid.dart';
 
@@ -18,20 +19,19 @@ class Reconciliation {
     return {
       'id': id,
       'budgetId': budgetId,
-      'date': date.toIso8601String(),
+      'date': toISO8601Date(date),
       'balance': balance,
     };
   }
 
   factory Reconciliation.newReconciliation({
     required String budgetId,
-    required DateTime date,
     required num balance,
   }) {
     return Reconciliation(
       id: Uuid().v4(),
       budgetId: budgetId,
-      date: date,
+      date: DateTime.now(),
       balance: balance,
     );
   }

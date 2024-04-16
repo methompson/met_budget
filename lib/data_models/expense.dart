@@ -1,3 +1,192 @@
+import 'package:met_budget/utils/8601_date.dart';
+import 'package:uuid/uuid.dart';
+
+import 'package:met_budget/utils/exceptions.dart';
+import 'package:met_budget/utils/type_checker.dart';
+
+enum ExpenseTargetType {
+  weekly,
+  monthly,
+  dated,
+}
+
+ExpenseTargetType expenseTargetTypeFromString(String type) {
+  switch (type) {
+    case 'weekly':
+      return ExpenseTargetType.weekly;
+    case 'monthly':
+      return ExpenseTargetType.monthly;
+    case 'dated':
+      return ExpenseTargetType.dated;
+    default:
+      throw InvalidInputException('Invalid expense target type: $type');
+  }
+}
+
+String expenseTargetTypeToString(ExpenseTargetType type) {
+  switch (type) {
+    case ExpenseTargetType.weekly:
+      return 'weekly';
+    case ExpenseTargetType.monthly:
+      return 'monthly';
+    case ExpenseTargetType.dated:
+      return 'dated';
+  }
+}
+
+abstract class ExpenseTarget {
+  Map<String, dynamic> toJson();
+
+  static fromJson(dynamic input) {
+    const errMsg = 'ExpenseTarget.fromJson Failed:';
+
+    final json = isTypeError<Map>(input, message: '$errMsg expenseTarget');
+
+    final type = isTypeError<String>(
+      json['type'],
+      message: '$errMsg type',
+    );
+
+    final ett = expenseTargetTypeFromString(type);
+
+    switch (ett) {
+      case ExpenseTargetType.weekly:
+        return WeeklyExpenseTarget.fromJson(json);
+      case ExpenseTargetType.monthly:
+        return MonthlyExpenseTarget.fromJson(json);
+      case ExpenseTargetType.dated:
+        return DatedExpenseTarget.fromJson(json);
+    }
+  }
+}
+
+class WeeklyExpenseTarget extends ExpenseTarget {
+  final int dayOfWeek;
+
+  WeeklyExpenseTarget({
+    required this.dayOfWeek,
+  });
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'type': expenseTargetTypeToString(ExpenseTargetType.weekly),
+      'data': {
+        'dayOfWeek': dayOfWeek,
+      },
+    };
+  }
+
+  factory WeeklyExpenseTarget.fromJson(dynamic input) {
+    final json = isTypeError<Map>(
+      input,
+      message: 'WeeklyExpenseTarget.fromJson Failed: root',
+    );
+
+    final data = isTypeError<Map>(
+      json['data'],
+      message: 'WeeklyExpenseTarget.fromJson Failed: data',
+    );
+
+    const errMsg = 'ExpenseTarget.fromJson Failed:';
+    final dayOfWeek = isTypeError<num>(
+      data['dayOfWeek'],
+      message: '$errMsg dayOfWeek',
+    );
+
+    if (dayOfWeek < 1 || dayOfWeek > 7) {
+      throw InvalidInputException('Invalid dayOfWeek: $dayOfWeek');
+    }
+
+    return WeeklyExpenseTarget(dayOfWeek: dayOfWeek.toInt());
+  }
+}
+
+// Day of month refers to the same day of the month every month
+// If day of month is -1, it refers to the last day of the month
+class MonthlyExpenseTarget extends ExpenseTarget {
+  final int dayOfMonth;
+
+  MonthlyExpenseTarget({
+    required this.dayOfMonth,
+  });
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'type': expenseTargetTypeToString(ExpenseTargetType.monthly),
+      'data': {
+        'dayOfMonth': dayOfMonth,
+      },
+    };
+  }
+
+  factory MonthlyExpenseTarget.fromJson(dynamic input) {
+    const errMsg = 'ExpenseTarget.fromJson Failed:';
+    final json = isTypeError<Map>(
+      input,
+      message: 'WeeklyExpenseTarget.fromJson Failed: root',
+    );
+
+    final data = isTypeError<Map>(
+      json['data'],
+      message: 'WeeklyExpenseTarget.fromJson Failed: data',
+    );
+
+    final dayOfMonth = isTypeError<num>(
+      data['dayOfMonth'],
+      message: '$errMsg dayOfMonth',
+    );
+
+    if (dayOfMonth < -1 || dayOfMonth == 0 || dayOfMonth > 31) {
+      throw InvalidInputException('Invalid dayOfMonth: $dayOfMonth');
+    }
+
+    return MonthlyExpenseTarget(dayOfMonth: dayOfMonth.toInt());
+  }
+}
+
+class DatedExpenseTarget extends ExpenseTarget {
+  final DateTime date;
+
+  DatedExpenseTarget({
+    required this.date,
+  });
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'type': expenseTargetTypeToString(ExpenseTargetType.dated),
+      'data': {
+        'date': toISO8601Date(date),
+      },
+    };
+  }
+
+  factory DatedExpenseTarget.fromJson(dynamic input) {
+    const errMsg = 'ExpenseTarget.fromJson Failed:';
+
+    final json = isTypeError<Map>(
+      input,
+      message: 'WeeklyExpenseTarget.fromJson Failed: root',
+    );
+
+    final data = isTypeError<Map>(
+      json['data'],
+      message: 'WeeklyExpenseTarget.fromJson Failed: data',
+    );
+
+    final dateStr = isTypeError<String>(
+      data['date'],
+      message: '$errMsg date',
+    );
+
+    final date = DateTime.parse(dateStr);
+
+    return DatedExpenseTarget(date: date);
+  }
+}
+
 class Expense {
   final String id;
   final String budgetId;
@@ -14,36 +203,77 @@ class Expense {
     required this.amount,
     required this.expenseTarget,
   });
-}
 
-enum ExpenseTargetType {
-  weekly,
-  monthly,
-  dated,
-}
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'budgetId': budgetId,
+      'categoryId': categoryId,
+      'description': description,
+      'amount': amount,
+      'expenseTarget': expenseTarget.toJson(),
+    };
+  }
 
-class ExpenseTarget {}
+  factory Expense.newExpense({
+    required String budgetId,
+    required String categoryId,
+    required String description,
+    required num amount,
+    required ExpenseTarget expenseTarget,
+  }) {
+    return Expense(
+      id: Uuid().v4(),
+      budgetId: budgetId,
+      categoryId: categoryId,
+      description: description,
+      amount: amount,
+      expenseTarget: expenseTarget,
+    );
+  }
 
-class WeeklyExpenseTarget extends ExpenseTarget {
-  final int dayOfWeek;
+  factory Expense.fromJson(dynamic input) {
+    const errMsg = 'Expense.fromJson Failed:';
 
-  WeeklyExpenseTarget({
-    required this.dayOfWeek,
-  });
-}
+    final json = isTypeError<Map>(
+      input,
+      message: '$errMsg root',
+    );
 
-class MonthlyExpenseTarget extends ExpenseTarget {
-  final int dayOfMonth;
+    final id = isTypeError<String>(
+      json['id'],
+      message: '$errMsg id',
+    );
 
-  MonthlyExpenseTarget({
-    required this.dayOfMonth,
-  });
-}
+    final budgetId = isTypeError<String>(
+      json['budgetId'],
+      message: '$errMsg budgetId',
+    );
 
-class DatedExpenseTarget extends ExpenseTarget {
-  final DateTime date;
+    final categoryId = isTypeError<String>(
+      json['categoryId'],
+      message: '$errMsg categoryId',
+    );
 
-  DatedExpenseTarget({
-    required this.date,
-  });
+    final description = isTypeError<String>(
+      json['description'],
+      message: '$errMsg description',
+    );
+
+    final amount = isTypeError<num>(
+      json['amount'],
+      message: '$errMsg amount',
+    );
+
+    final expenseTarget = ExpenseTarget.fromJson(json['expenseTarget']);
+
+    return Expense(
+      id: id,
+      budgetId: budgetId,
+      categoryId: categoryId,
+      description: description,
+      amount: amount,
+      expenseTarget: expenseTarget,
+    );
+  }
 }

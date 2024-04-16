@@ -5,9 +5,9 @@ class WithdrawalTransaction {
   final String id;
   final String budgetId;
   final String expenseId;
-
   final String description;
   final DateTime dateTime;
+  final num amount;
 
   WithdrawalTransaction({
     required this.id,
@@ -15,6 +15,7 @@ class WithdrawalTransaction {
     required this.expenseId,
     required this.description,
     required this.dateTime,
+    required this.amount,
   });
 
   Map<String, dynamic> toJson() {
@@ -24,6 +25,7 @@ class WithdrawalTransaction {
       'expenseId': expenseId,
       'description': description,
       'dateTime': dateTime.toIso8601String(),
+      'amount': amount,
     };
   }
 
@@ -31,6 +33,7 @@ class WithdrawalTransaction {
     required String budgetId,
     required String expenseId,
     required String description,
+    required num amount,
   }) {
     return WithdrawalTransaction(
       id: Uuid().v4(),
@@ -38,6 +41,7 @@ class WithdrawalTransaction {
       expenseId: expenseId,
       description: description,
       dateTime: DateTime.now(),
+      amount: amount,
     );
   }
 
@@ -70,12 +74,18 @@ class WithdrawalTransaction {
       message: '$errMsg dateTime',
     );
 
+    final amount = isTypeError<num>(
+      json['amount'],
+      message: '$errMsg amount',
+    );
+
     return WithdrawalTransaction(
       id: id,
       budgetId: budgetId,
       expenseId: expenseId,
       description: description,
       dateTime: DateTime.parse(dateTime),
+      amount: amount,
     );
   }
 }

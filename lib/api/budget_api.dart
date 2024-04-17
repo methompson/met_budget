@@ -19,9 +19,51 @@ typedef AddDepositResponse = ({
   num currentFunds,
 });
 
+typedef UpdateDepositResponse = ({
+  DepositTransaction deposit,
+  DepositTransaction oldDeposit,
+  num currentFunds,
+});
+
+typedef DeleteDepositResponse = ({
+  DepositTransaction deposit,
+  num currentFunds,
+});
+
 typedef AddWithdrawalResponse = ({
   WithdrawalTransaction withdrawal,
   num currentFunds,
+});
+
+typedef UpdateWithdrawalResponse = ({
+  WithdrawalTransaction withdrawal,
+  WithdrawalTransaction oldWithdrawal,
+  num currentFunds,
+});
+
+typedef DeleteWithdrawalResponse = ({
+  WithdrawalTransaction withdrawal,
+  num currentFunds,
+});
+
+typedef DeleteReconciliationResponse = ({
+  Reconciliation reconciliation,
+  num currentFunds,
+});
+
+typedef UpdateBudgetResponse = ({
+  Budget budget,
+  Budget oldBudget,
+});
+
+typedef UpdateExpenseCategoryResponse = ({
+  ExpenseCategory category,
+  ExpenseCategory oldCategory,
+});
+
+typedef UpdateExpenseResponse = ({
+  Expense expense,
+  Expense oldExpense,
 });
 
 class BudgetAPI extends APICommon {
@@ -96,7 +138,7 @@ class BudgetAPI extends APICommon {
     return addedBudget;
   }
 
-  Future<Budget> updateBudget(Budget updatedBudget) async {
+  Future<UpdateBudgetResponse> updateBudget(Budget updatedBudget) async {
     final uri = getUri(baseDomain, '$baseApiUrl/updateBudget');
 
     final token = await getAuthorizationToken();
@@ -120,8 +162,12 @@ class BudgetAPI extends APICommon {
 
     final bodyJson = isTypeError<Map>(jsonDecode(response.body));
     final oldBudget = Budget.fromJson(bodyJson['oldBudget']);
+    final budget = Budget.fromJson(bodyJson['budget']);
 
-    return oldBudget;
+    return (
+      oldBudget: oldBudget,
+      budget: budget,
+    );
   }
 
   Future<Budget> deleteBudget(String budgetId) async {
@@ -224,7 +270,7 @@ class BudgetAPI extends APICommon {
     return addedCat;
   }
 
-  Future<ExpenseCategory> updateCategory(
+  Future<UpdateExpenseCategoryResponse> updateCategory(
     ExpenseCategory updatedCategory,
   ) async {
     final uri = getUri(baseDomain, '$baseApiUrl/updateCategory');
@@ -250,8 +296,12 @@ class BudgetAPI extends APICommon {
 
     final bodyJson = isTypeError<Map>(jsonDecode(response.body));
     final oldCategory = ExpenseCategory.fromJson(bodyJson['oldCategory']);
+    final category = ExpenseCategory.fromJson(bodyJson['category']);
 
-    return oldCategory;
+    return (
+      oldCategory: oldCategory,
+      category: category,
+    );
   }
 
   Future<ExpenseCategory> deleteCategory(String categoryId) async {
@@ -354,7 +404,7 @@ class BudgetAPI extends APICommon {
     return addedExpense;
   }
 
-  Future<Expense> updateExpense(Expense updatedExpense) async {
+  Future<UpdateExpenseResponse> updateExpense(Expense updatedExpense) async {
     final uri = getUri(baseDomain, '$baseApiUrl/updateExpense');
 
     final token = await getAuthorizationToken();
@@ -378,8 +428,12 @@ class BudgetAPI extends APICommon {
 
     final bodyJson = isTypeError<Map>(jsonDecode(response.body));
     final oldExpense = Expense.fromJson(bodyJson['oldExpense']);
+    final expense = Expense.fromJson(bodyJson['expense']);
 
-    return oldExpense;
+    return (
+      oldExpense: oldExpense,
+      expense: expense,
+    );
   }
 
   Future<Expense> deleteExpense(String expenseId) async {
@@ -494,8 +548,73 @@ class BudgetAPI extends APICommon {
     );
   }
 
-  Future<void> updateDeposit() async {}
-  Future<void> deleteDeposit() async {}
+  Future<UpdateDepositResponse> updateDeposit(
+    DepositTransaction updatedDeposit,
+  ) async {
+    final uri = getUri(baseDomain, '$baseApiUrl/updateDeposit');
+
+    final token = await getAuthorizationToken();
+
+    final headers = {
+      'authorization': token,
+      'content-type': 'application/json',
+    };
+
+    final Map<String, dynamic> body = {
+      'deposit': updatedDeposit.toJson(),
+    };
+
+    final response = await http.post(
+      uri,
+      headers: headers,
+      body: jsonEncode(body),
+    );
+
+    commonResponseCheck(response, uri);
+
+    final bodyJson = isTypeError<Map>(jsonDecode(response.body));
+    final oldDeposit = DepositTransaction.fromJson(bodyJson['oldDeposit']);
+    final deposit = DepositTransaction.fromJson(bodyJson['deposit']);
+    final currentFunds = isTypeError<num>(bodyJson['currentFunds']);
+
+    return (
+      deposit: deposit,
+      oldDeposit: oldDeposit,
+      currentFunds: currentFunds,
+    );
+  }
+
+  Future<DeleteDepositResponse> deleteDeposit(String depositId) async {
+    final uri = getUri(baseDomain, '$baseApiUrl/deleteDeposit');
+
+    final token = await getAuthorizationToken();
+
+    final headers = {
+      'authorization': token,
+      'content-type': 'application/json',
+    };
+
+    final Map<String, dynamic> body = {
+      'depositId': depositId,
+    };
+
+    final response = await http.post(
+      uri,
+      headers: headers,
+      body: jsonEncode(body),
+    );
+
+    commonResponseCheck(response, uri);
+
+    final bodyJson = isTypeError<Map>(jsonDecode(response.body));
+    final oldDeposit = DepositTransaction.fromJson(bodyJson['deposit']);
+    final currentFunds = isTypeError<num>(bodyJson['currentFunds']);
+
+    return (
+      deposit: oldDeposit,
+      currentFunds: currentFunds,
+    );
+  }
 
   Future<List<WithdrawalTransaction>> getWithdrawals(
     String budgetId,
@@ -583,13 +702,83 @@ class BudgetAPI extends APICommon {
     );
   }
 
-  Future<void> updateWithdrawal() async {}
-  Future<void> deleteWithdrawal() async {}
+  Future<UpdateWithdrawalResponse> updateWithdrawal(
+    WithdrawalTransaction updatedWithdrawal,
+  ) async {
+    final uri = getUri(baseDomain, '$baseApiUrl/updateWithdrawal');
 
-  Future<List<Reconciliation>> getReconciliations() async {
+    final token = await getAuthorizationToken();
+
+    final headers = {
+      'authorization': token,
+      'content-type': 'application/json',
+    };
+
+    final Map<String, dynamic> body = {
+      'withdrawal': updatedWithdrawal.toJson(),
+    };
+
+    final response = await http.post(
+      uri,
+      headers: headers,
+      body: jsonEncode(body),
+    );
+
+    commonResponseCheck(response, uri);
+
+    final bodyJson = isTypeError<Map>(jsonDecode(response.body));
+    final oldWithdrawal =
+        WithdrawalTransaction.fromJson(bodyJson['oldWithdrawal']);
+    final withdrawal = WithdrawalTransaction.fromJson(bodyJson['withdrawal']);
+    final currentFunds = isTypeError<num>(bodyJson['currentFunds']);
+
+    return (
+      withdrawal: withdrawal,
+      oldWithdrawal: oldWithdrawal,
+      currentFunds: currentFunds,
+    );
+  }
+
+  Future<DeleteWithdrawalResponse> deleteWithdrawal(
+    String withdrawalId,
+  ) async {
+    final uri = getUri(baseDomain, '$baseApiUrl/deleteWithdrawal');
+
+    final token = await getAuthorizationToken();
+
+    final headers = {
+      'authorization': token,
+      'content-type': 'application/json',
+    };
+
+    final Map<String, dynamic> body = {
+      'withdrawalId': withdrawalId,
+    };
+
+    final response = await http.post(
+      uri,
+      headers: headers,
+      body: jsonEncode(body),
+    );
+
+    commonResponseCheck(response, uri);
+
+    final bodyJson = isTypeError<Map>(jsonDecode(response.body));
+    final oldWithdrawal =
+        WithdrawalTransaction.fromJson(bodyJson['withdrawal']);
+    final currentFunds = isTypeError<num>(bodyJson['currentFunds']);
+
+    return (
+      withdrawal: oldWithdrawal,
+      currentFunds: currentFunds,
+    );
+  }
+
+  Future<List<Reconciliation>> getReconciliations(String budgetId) async {
     final uri = getUri(
       baseDomain,
       '$baseApiUrl/reconciliations',
+      {'budgetId': budgetId},
     );
 
     final token = await getAuthorizationToken();
@@ -657,5 +846,37 @@ class BudgetAPI extends APICommon {
     return addedRecon;
   }
 
-  Future<void> deleteReconciliation() async {}
+  Future<DeleteReconciliationResponse> deleteReconciliation(
+    String reconciliationId,
+  ) async {
+    final uri = getUri(baseDomain, '$baseApiUrl/deleteReconciliation');
+
+    final token = await getAuthorizationToken();
+
+    final headers = {
+      'authorization': token,
+      'content-type': 'application/json',
+    };
+
+    final Map<String, dynamic> body = {
+      'reconciliationId': reconciliationId,
+    };
+
+    final response = await http.post(
+      uri,
+      headers: headers,
+      body: jsonEncode(body),
+    );
+
+    commonResponseCheck(response, uri);
+
+    final bodyJson = isTypeError<Map>(jsonDecode(response.body));
+    final oldRecon = Reconciliation.fromJson(bodyJson['reconciliation']);
+    final currentFunds = isTypeError<num>(bodyJson['currentFunds']);
+
+    return (
+      reconciliation: oldRecon,
+      currentFunds: currentFunds,
+    );
+  }
 }

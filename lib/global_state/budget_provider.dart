@@ -14,9 +14,9 @@ class BudgetProvider extends ChangeNotifier {
   Map<String, Budget> _budgets = {};
   Map<String, ExpenseCategory> _categories = {};
   Map<String, Expense> _expenses = {};
-  List<DepositTransaction> _deposits = [];
-  List<WithdrawalTransaction> _withdrawals = [];
-  List<Reconciliation> _reconciliations = [];
+  Map<String, DepositTransaction> _deposits = {};
+  Map<String, WithdrawalTransaction> _withdrawals = {};
+  Map<String, Reconciliation> _reconciliations = {};
 
   String? _currentBudget;
   Budget? get currentBudget => _budgets[_currentBudget ?? ''];
@@ -24,9 +24,27 @@ class BudgetProvider extends ChangeNotifier {
   Map<String, Budget> get budgets => _budgets;
   Map<String, ExpenseCategory> get categories => _categories;
   Map<String, Expense> get expenses => _expenses;
-  List<DepositTransaction> get deposits => _deposits;
-  List<WithdrawalTransaction> get withdrawals => _withdrawals;
-  List<Reconciliation> get reconciliations => _reconciliations;
+  Map<String, DepositTransaction> get deposits => _deposits;
+  Map<String, WithdrawalTransaction> get withdrawals => _withdrawals;
+  Map<String, Reconciliation> get reconciliations => _reconciliations;
+
+  List<DepositTransaction> get depositsList {
+    final list = _deposits.values.toList();
+    list.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+    return list;
+  }
+
+  List<WithdrawalTransaction> get withdrawalsList {
+    final list = _withdrawals.values.toList();
+    list.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+    return list;
+  }
+
+  List<Reconciliation> get reconciliationsList {
+    final list = _reconciliations.values.toList();
+    list.sort((a, b) => b.date.compareTo(a.date));
+    return list;
+  }
 
   BudgetAPI? _budgetAPI;
   @visibleForTesting
@@ -37,21 +55,6 @@ class BudgetProvider extends ChangeNotifier {
   }
 
   Future<void> init() async {}
-
-  // perform an inline sort of deposits
-  void sortDeposits() {
-    _deposits.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-  }
-
-  // perform an inline sort of reconciliations
-  void sortReconciliation() {
-    _reconciliations.sort((a, b) => b.date.compareTo(a.date));
-  }
-
-  // perform an inline sort of withdrawals
-  void sortWithdrawals() {
-    _withdrawals.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-  }
 
   Future<void> selectBudget(String? budgetId) async {
     final budget = _budgets[budgetId ?? ''];
@@ -114,8 +117,22 @@ class BudgetProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateCategory(ExpenseCategory category) async {}
-  Future<void> deleteCategory(ExpenseCategory category) async {}
+  Future<void> updateCategory(ExpenseCategory category) async {
+    final api = _budgetAPI ?? BudgetAPI();
+    final response = await api.updateCategory(category);
+
+    _categories[response.category.id] = response.category;
+
+    notifyListeners();
+  }
+
+  Future<void> deleteCategory(ExpenseCategory category) async {
+    final api = _budgetAPI ?? BudgetAPI();
+    await api.deleteCategory(category.id);
+    _categories.remove(category.id);
+
+    notifyListeners();
+  }
 
   Future<void> getExpenses() async {
     final api = _budgetAPI ?? BudgetAPI();
@@ -135,8 +152,22 @@ class BudgetProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateExpense(Expense expense) async {}
-  Future<void> deleteExpense(Expense expense) async {}
+  Future<void> updateExpense(Expense expense) async {
+    final api = _budgetAPI ?? BudgetAPI();
+    final response = await api.updateExpense(expense);
+
+    _expenses[response.expense.id] = response.expense;
+
+    notifyListeners();
+  }
+
+  Future<void> deleteExpense(Expense expense) async {
+    final api = _budgetAPI ?? BudgetAPI();
+    await api.deleteExpense(expense.id);
+    _expenses.remove(expense.id);
+
+    notifyListeners();
+  }
 
   Future<void> getDeposits({
     DateTime? startTime,
@@ -162,8 +193,8 @@ class BudgetProvider extends ChangeNotifier {
       et = DateTime(now.year, now.month + 1, 0);
     }
 
-    _deposits = await api.getDeposits(cb, st, et);
-    sortDeposits();
+    final depositsList = await api.getDeposits(cb, st, et);
+    _deposits = listToMap(depositsList, (d) => d.id);
 
     notifyListeners();
   }
@@ -181,8 +212,7 @@ class BudgetProvider extends ChangeNotifier {
     final updatedBudget = cb.updateFunds(response.currentFunds);
     _budgets[cb.id] = updatedBudget;
 
-    _deposits.add(response.deposit);
-    sortDeposits();
+    _deposits[response.deposit.id] = response.deposit;
 
     notifyListeners();
   }
@@ -200,14 +230,18 @@ class BudgetProvider extends ChangeNotifier {
     final updatedBudget = cb.updateFunds(response.currentFunds);
     _budgets[cb.id] = updatedBudget;
 
-    _deposits.removeWhere((el) => el.id == response.deposit.id);
-    _deposits.add(response.deposit);
-    sortDeposits();
+    _deposits[response.deposit.id] = response.deposit;
 
     notifyListeners();
   }
 
-  Future<void> deleteDeposit(DepositTransaction deposit) async {}
+  Future<void> deleteDeposit(DepositTransaction deposit) async {
+    final api = _budgetAPI ?? BudgetAPI();
+    await api.deleteDeposit(deposit.id);
+    _deposits.remove(deposit.id);
+
+    notifyListeners();
+  }
 
   Future<void> getWithdrawals({
     DateTime? startTime,
@@ -233,8 +267,8 @@ class BudgetProvider extends ChangeNotifier {
       et = DateTime(now.year, now.month + 1, 0);
     }
 
-    _withdrawals = await api.getWithdrawals(cb, st, et);
-    sortWithdrawals();
+    final wList = await api.getWithdrawals(cb, st, et);
+    _withdrawals = listToMap(wList, (w) => w.id);
 
     notifyListeners();
   }
@@ -252,14 +286,36 @@ class BudgetProvider extends ChangeNotifier {
     final updatedBudget = cb.updateFunds(response.currentFunds);
     _budgets[cb.id] = updatedBudget;
 
-    _withdrawals.add(response.withdrawal);
-    sortWithdrawals();
+    _withdrawals[response.withdrawal.id] = response.withdrawal;
 
     notifyListeners();
   }
 
-  Future<void> updateWithdrawal(WithdrawalTransaction withdrawal) async {}
-  Future<void> deleteWithdrawal(WithdrawalTransaction withdrawal) async {}
+  Future<void> updateWithdrawal(WithdrawalTransaction withdrawal) async {
+    final cb = currentBudget;
+    if (cb == null) {
+      LoggingProvider.instance.logError('No current budget set');
+      return;
+    }
+
+    final api = _budgetAPI ?? BudgetAPI();
+    final response = await api.updateWithdrawal(withdrawal);
+
+    final updatedBudget = cb.updateFunds(response.currentFunds);
+    _budgets[cb.id] = updatedBudget;
+
+    _withdrawals[response.withdrawal.id] = response.withdrawal;
+
+    notifyListeners();
+  }
+
+  Future<void> deleteWithdrawal(WithdrawalTransaction withdrawal) async {
+    final api = _budgetAPI ?? BudgetAPI();
+    await api.deleteWithdrawal(withdrawal.id);
+    _withdrawals.remove(withdrawal.id);
+
+    notifyListeners();
+  }
 
   Future<void> getReconciliations() async {
     final cb = _currentBudget;
@@ -271,8 +327,8 @@ class BudgetProvider extends ChangeNotifier {
 
     final api = _budgetAPI ?? BudgetAPI();
 
-    _reconciliations = await api.getReconciliations(cb);
-    sortReconciliation();
+    final rList = await api.getReconciliations(cb);
+    _reconciliations = listToMap(rList, (r) => r.id);
 
     notifyListeners();
   }
@@ -290,11 +346,16 @@ class BudgetProvider extends ChangeNotifier {
     final updatedBudget = cb.updateFunds(reconciliation.balance);
     _budgets[cb.id] = updatedBudget;
 
-    _reconciliations.add(response);
-    sortReconciliation();
+    _reconciliations[response.id] = response;
 
     notifyListeners();
   }
 
-  Future<void> updateReconciliation(Reconciliation reconciliation) async {}
+  Future<void> updateReconciliation(Reconciliation reconciliation) async {
+    final api = _budgetAPI ?? BudgetAPI();
+    await api.deleteReconciliation(reconciliation.id);
+    _reconciliations.remove(reconciliation.id);
+
+    notifyListeners();
+  }
 }

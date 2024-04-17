@@ -2,11 +2,9 @@ Map<String, T> listToMap<T>(
   List<T> list,
   String Function(T) keygen,
 ) {
-  return Map.fromEntries(
-    list.map(
-      (e) => MapEntry(keygen(e), e),
-    ),
-  );
+  return {
+    for (final el in list) keygen(el): el,
+  };
 }
 
 Map<String, U> listToMapWithValue<T, U>(
@@ -14,9 +12,7 @@ Map<String, U> listToMapWithValue<T, U>(
   String Function(T) keygen,
   U Function(T) valuegen,
 ) {
-  return Map.fromEntries(
-    list.map(
-      (e) => MapEntry(keygen(e), valuegen(e)),
-    ),
-  );
+  return {
+    for (final el in list) keygen(el): valuegen(el),
+  };
 }

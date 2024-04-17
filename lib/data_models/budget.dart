@@ -24,6 +24,15 @@ class Budget {
     };
   }
 
+  Budget updateFunds(num funds) {
+    return Budget(
+      id: id,
+      userId: userId,
+      name: name,
+      currentFunds: funds,
+    );
+  }
+
   factory Budget.newBudget({
     required String userId,
     required String name,

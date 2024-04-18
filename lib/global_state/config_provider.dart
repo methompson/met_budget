@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:met_budget/global_state/data_provider.dart';
 
 import 'package:met_budget/global_state/logging_provider.dart';
 import 'package:met_budget/utils/type_checker.dart';
@@ -28,8 +28,13 @@ class ConfigProvider extends ChangeNotifier {
 
   Future<void> init() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final configStr = isTypeError<String>(prefs.getString('config'));
+      final dp = DataProvider.instance;
+      final configStr = await dp.getData('config');
+
+      if (configStr == null) {
+        _config = {...defaultConfig};
+        return;
+      }
 
       final rawConfig = isTypeError<List>(jsonDecode(configStr));
 
@@ -51,10 +56,11 @@ class ConfigProvider extends ChangeNotifier {
 
   Future<void> saveConfig() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final dp = DataProvider.instance;
+
       final configStr = jsonEncode(_config.values.toList());
 
-      await prefs.setString('config', configStr);
+      await dp.setData('config', configStr);
     } catch (e) {
       LoggingProvider.instance.logError('Error saving config: $e');
     }

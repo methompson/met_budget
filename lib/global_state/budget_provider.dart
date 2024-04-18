@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:met_budget/api/budget_api.dart';
 
@@ -7,6 +9,7 @@ import 'package:met_budget/data_models/expense.dart';
 import 'package:met_budget/data_models/expense_category.dart';
 import 'package:met_budget/data_models/reconciliation.dart';
 import 'package:met_budget/data_models/withdrawal_transaction.dart';
+import 'package:met_budget/global_state/data_provider.dart';
 import 'package:met_budget/global_state/logging_provider.dart';
 import 'package:met_budget/utils/list_to_map.dart';
 
@@ -61,20 +64,7 @@ class BudgetProvider extends ChangeNotifier {
   }
 
   Future<void> clearCache() async {
-    // final prefs = await SharedPreferences.getInstance();
-
-    _currentBudget = null;
-    _budgets = {};
-    _categories = {};
-    _expenses = {};
-    _deposits = {};
-    _withdrawals = {};
-    _reconciliations = {};
-
-    // await prefs.remove(viceBankUsersKey);
-    // await prefs.remove(viceBankCurrentUserKey);
-
-    notifyListeners();
+    await selectBudget(null);
   }
 
   Future<void> init() async {}
@@ -83,8 +73,6 @@ class BudgetProvider extends ChangeNotifier {
     final budget = _budgets[budgetId ?? ''];
 
     _currentBudget = budget?.id;
-
-    // TODO Persist data
 
     if (_currentBudget == null) {
       _categories = {};
@@ -97,6 +85,8 @@ class BudgetProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+
+    await persistData();
   }
 
   Future<void> getAllBudgetData() async {
@@ -107,6 +97,100 @@ class BudgetProvider extends ChangeNotifier {
       getWithdrawals(),
       getReconciliations(),
     ]);
+  }
+
+  Future<void> persistData() async {
+    final budgets = _budgets.values.map((b) => b.toJson()).toList();
+    final categories = _categories.values.map((c) => c.toJson()).toList();
+    final expenses = _expenses.values.map((e) => e.toJson()).toList();
+    final deposits = _deposits.values.map((d) => d.toJson()).toList();
+    final withdrawals = _withdrawals.values.map((w) => w.toJson()).toList();
+    final reconciliations =
+        _reconciliations.values.map((r) => r.toJson()).toList();
+
+    final dp = DataProvider.instance;
+    await Future.wait([
+      dp.setData('budgets', jsonEncode(budgets)),
+      dp.setData('categories', jsonEncode(categories)),
+      dp.setData('expenses', jsonEncode(expenses)),
+      dp.setData('deposits', jsonEncode(deposits)),
+      dp.setData('withdrawals', jsonEncode(withdrawals)),
+      dp.setData('reconciliations', jsonEncode(reconciliations)),
+    ]);
+  }
+
+  Future<void> retrievePersistedData() async {
+    final dp = DataProvider.instance;
+
+    final [
+      budgetsStr,
+      categoriesStr,
+      expensesStr,
+      depositsStr,
+      withdrawalsStr,
+      reconciliationsStr,
+    ] = await Future.wait([
+      dp.getData('budgets'),
+      dp.getData('categories'),
+      dp.getData('expenses'),
+      dp.getData('deposits'),
+      dp.getData('withdrawals'),
+      dp.getData('reconciliations'),
+    ]);
+
+    try {
+      _budgets = listToMap(
+        Budget.parseJsonList(budgetsStr ?? '[]'),
+        (b) => b.id,
+      );
+    } catch (e) {
+      LoggingProvider.instance.logError('Error retrieving persisted data: $e');
+    }
+
+    try {
+      _categories = listToMap(
+        ExpenseCategory.parseJsonList(categoriesStr ?? '[]'),
+        (b) => b.id,
+      );
+    } catch (e) {
+      LoggingProvider.instance.logError('Error retrieving persisted data: $e');
+    }
+
+    try {
+      _expenses = listToMap(
+        Expense.parseJsonList(expensesStr ?? '[]'),
+        (b) => b.id,
+      );
+    } catch (e) {
+      LoggingProvider.instance.logError('Error retrieving persisted data: $e');
+    }
+
+    try {
+      _deposits = listToMap(
+        DepositTransaction.parseJsonList(depositsStr ?? '[]'),
+        (b) => b.id,
+      );
+    } catch (e) {
+      LoggingProvider.instance.logError('Error retrieving persisted data: $e');
+    }
+
+    try {
+      _withdrawals = listToMap(
+        WithdrawalTransaction.parseJsonList(withdrawalsStr ?? '[]'),
+        (b) => b.id,
+      );
+    } catch (e) {
+      LoggingProvider.instance.logError('Error retrieving persisted data: $e');
+    }
+
+    try {
+      _reconciliations = listToMap(
+        Reconciliation.parseJsonList(reconciliationsStr ?? '[]'),
+        (b) => b.id,
+      );
+    } catch (e) {
+      LoggingProvider.instance.logError('Error retrieving persisted data: $e');
+    }
   }
 
   Future<List<Budget>> getBudgets() async {

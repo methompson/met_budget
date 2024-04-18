@@ -1,5 +1,7 @@
-import 'package:met_budget/utils/type_checker.dart';
+import 'dart:convert';
 import 'package:uuid/uuid.dart';
+
+import 'package:met_budget/utils/type_checker.dart';
 
 class WithdrawalTransaction {
   final String id;
@@ -87,5 +89,18 @@ class WithdrawalTransaction {
       dateTime: DateTime.parse(dateTime),
       amount: amount,
     );
+  }
+
+  static List<WithdrawalTransaction> parseJsonList(String input) {
+    final json = jsonDecode(input);
+    final rawList = isTypeError<List>(json);
+
+    final List<WithdrawalTransaction> output = [];
+
+    for (final p in rawList) {
+      output.add(WithdrawalTransaction.fromJson(p));
+    }
+
+    return output;
   }
 }

@@ -1,6 +1,7 @@
-import 'package:met_budget/utils/8601_date.dart';
+import 'dart:convert';
 import 'package:uuid/uuid.dart';
 
+import 'package:met_budget/utils/8601_date.dart';
 import 'package:met_budget/utils/exceptions.dart';
 import 'package:met_budget/utils/type_checker.dart';
 
@@ -275,5 +276,18 @@ class Expense {
       amount: amount,
       expenseTarget: expenseTarget,
     );
+  }
+
+  static List<Expense> parseJsonList(String input) {
+    final json = jsonDecode(input);
+    final rawList = isTypeError<List>(json);
+
+    final List<Expense> output = [];
+
+    for (final p in rawList) {
+      output.add(Expense.fromJson(p));
+    }
+
+    return output;
   }
 }

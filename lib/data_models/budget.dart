@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:uuid/uuid.dart';
 
 import 'package:met_budget/utils/type_checker.dart';
@@ -76,5 +78,18 @@ class Budget {
       name: name,
       currentFunds: currentFunds,
     );
+  }
+
+  static List<Budget> parseJsonList(String input) {
+    final json = jsonDecode(input);
+    final rawList = isTypeError<List>(json);
+
+    final List<Budget> output = [];
+
+    for (final p in rawList) {
+      output.add(Budget.fromJson(p));
+    }
+
+    return output;
   }
 }

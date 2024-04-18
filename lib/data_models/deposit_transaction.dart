@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:uuid/uuid.dart';
 
 import 'package:met_budget/utils/type_checker.dart';
@@ -77,5 +79,18 @@ class DepositTransaction {
       dateTime: DateTime.parse(dateTime),
       amount: amount,
     );
+  }
+
+  static List<DepositTransaction> parseJsonList(String input) {
+    final json = jsonDecode(input);
+    final rawList = isTypeError<List>(json);
+
+    final List<DepositTransaction> output = [];
+
+    for (final p in rawList) {
+      output.add(DepositTransaction.fromJson(p));
+    }
+
+    return output;
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:met_budget/ui/components/budget_header.dart';
 import 'package:met_budget/ui/components/budgets/no_budget_selected.dart';
 import 'package:met_budget/ui/components/page_container.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +13,7 @@ class HomePage extends StatelessWidget {
     return Selector<BudgetProvider, Budget?>(
       selector: (_, budgetProvider) => budgetProvider.currentBudget,
       builder: (context, budget, _) {
-        final child = budget != null ? Text('Budget!') : NoBudgetSelected();
+        final child = budget != null ? BudgetPage() : NoBudgetSelected();
 
         return CenteredFullSizeContainer(
           child: Column(
@@ -24,6 +25,19 @@ class HomePage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class BudgetPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        BudgetHeader(),
+      ],
     );
   }
 }

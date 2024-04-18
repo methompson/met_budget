@@ -67,7 +67,9 @@ class BudgetProvider extends ChangeNotifier {
     await selectBudget(null);
   }
 
-  Future<void> init() async {}
+  Future<void> init() async {
+    await retrievePersistedData();
+  }
 
   Future<void> selectBudget(String? budgetId) async {
     final budget = _budgets[budgetId ?? ''];
@@ -108,6 +110,8 @@ class BudgetProvider extends ChangeNotifier {
     final reconciliations =
         _reconciliations.values.map((r) => r.toJson()).toList();
 
+    final String selectedBudget = _currentBudget ?? '';
+
     final dp = DataProvider.instance;
     await Future.wait([
       dp.setData('budgets', jsonEncode(budgets)),
@@ -116,6 +120,7 @@ class BudgetProvider extends ChangeNotifier {
       dp.setData('deposits', jsonEncode(deposits)),
       dp.setData('withdrawals', jsonEncode(withdrawals)),
       dp.setData('reconciliations', jsonEncode(reconciliations)),
+      dp.setData('selectedBudget', selectedBudget),
     ]);
   }
 
@@ -129,6 +134,7 @@ class BudgetProvider extends ChangeNotifier {
       depositsStr,
       withdrawalsStr,
       reconciliationsStr,
+      selectedBudget,
     ] = await Future.wait([
       dp.getData('budgets'),
       dp.getData('categories'),
@@ -136,6 +142,7 @@ class BudgetProvider extends ChangeNotifier {
       dp.getData('deposits'),
       dp.getData('withdrawals'),
       dp.getData('reconciliations'),
+      dp.getData('selectedBudget')
     ]);
 
     try {
@@ -190,6 +197,10 @@ class BudgetProvider extends ChangeNotifier {
       );
     } catch (e) {
       LoggingProvider.instance.logError('Error retrieving persisted data: $e');
+    }
+
+    if (selectedBudget?.isNotEmpty ?? false) {
+      _currentBudget = selectedBudget;
     }
   }
 

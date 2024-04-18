@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:met_budget/data_models/budget.dart';
-import 'package:met_budget/ui/components/budgets/no_budget_selected.dart';
-import 'package:met_budget/ui/components/settings/debug_buttons.dart';
+import 'package:met_budget/ui/components/budget_header.dart';
 import 'package:provider/provider.dart';
 
 import 'package:met_budget/global_state/authentication_provider.dart';
 import 'package:met_budget/global_state/messaging_provider.dart';
-import 'package:met_budget/ui/components/theme_colors.dart';
 import 'package:met_budget/global_state/config_provider.dart';
 import 'package:met_budget/global_state/budget_provider.dart';
+
+import 'package:met_budget/ui/components/budgets/no_budget_selected.dart';
 import 'package:met_budget/ui/components/buttons.dart';
 import 'package:met_budget/ui/components/copyright_bar.dart';
+import 'package:met_budget/ui/components/settings/debug_buttons.dart';
+import 'package:met_budget/ui/components/theme_colors.dart';
 
 class SettingsPage extends StatelessWidget {
   @override
@@ -72,7 +74,7 @@ class SettingsContent extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // UserHeader(),
+        BudgetHeader(),
         CommonMargin(Text(
           'Settings Page',
           style: Theme.of(context).copyWith().textTheme.headlineMedium,

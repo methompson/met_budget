@@ -8,7 +8,7 @@ class TransactionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Selector<BudgetProvider, Budget?>(
       selector: (_, budgetProvider) => budgetProvider.currentBudget,
-      builder: (context, value, _) {
+      builder: (context, budget, _) {
         return Center(
           child: Text('Transactions Page'),
         );

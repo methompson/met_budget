@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
-import 'package:met_budget/utils/type_checker.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import 'package:met_budget/utils/type_checker.dart';
 import 'package:met_budget/utils/data_persistence/base.dart';
 
 typedef OpenDatabaseFunction = Future<Database> Function(

@@ -1,4 +1,6 @@
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
+
 import 'package:met_budget/api/budget_api.dart';
 import 'package:met_budget/data_models/budget.dart';
 import 'package:met_budget/data_models/deposit_transaction.dart';
@@ -6,11 +8,10 @@ import 'package:met_budget/data_models/expense.dart';
 import 'package:met_budget/data_models/expense_category.dart';
 import 'package:met_budget/data_models/reconciliation.dart';
 import 'package:met_budget/data_models/withdrawal_transaction.dart';
+import 'package:met_budget/global_state/budget_provider.dart';
 import 'package:met_budget/global_state/logging_provider.dart';
 import 'package:met_budget/global_state/messaging_provider.dart';
-
 import 'package:met_budget/ui/components/buttons.dart';
-import 'package:provider/provider.dart';
 
 class DebugButton extends StatelessWidget {
   final String buttonText;
@@ -40,6 +41,7 @@ class DebugButtons extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _APITests(),
+        _ProviderTest(),
       ],
     );
   }
@@ -85,7 +87,6 @@ class _APITests extends StatelessWidget {
 
     final newBudget = Budget.newBudget(
       name: 'Test Budget',
-      userId: 'testUserId',
     );
 
     final addedBudget = await api.addBudget(newBudget);
@@ -303,5 +304,222 @@ class _APITests extends StatelessWidget {
     ]);
 
     await api.deleteBudget(budget.id);
+  }
+}
+
+class _ProviderTest extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return DebugButton(
+      buttonText: 'All Providers Tests',
+      onPressed: () async {
+        final bp = context.read<BudgetProvider>();
+        final msgProvider = context.read<MessagingProvider>();
+        final lp = context.read<LoggingProvider>();
+
+        await bp.clearCache();
+
+        await testBudget(bp);
+        await testCategory(bp);
+        await testExpense(bp);
+        await testDeposit(bp);
+        await testWithdrawal(bp);
+        await testReconciliation(bp);
+
+        await bp.clearCache();
+        final budgets = await bp.getBudgets();
+        await bp.selectBudget(budgets.first.id);
+
+        await Future.wait([
+          bp.getCategories(),
+          bp.getExpenses(),
+          bp.getDeposits(),
+          bp.getWithdrawals(),
+          bp.getReconciliations(),
+        ]);
+
+        assert(bp.budgets.values.length == 1);
+        assert(bp.categories.values.length == 1);
+        assert(bp.expenses.values.length == 1);
+        assert(bp.deposits.values.length == 1);
+        assert(bp.withdrawals.values.length == 1);
+        assert(bp.reconciliations.values.length == 1);
+
+        await cleanup(bp);
+
+        try {
+          msgProvider.showSuccessSnackbar('All Provider Tests Passed');
+        } catch (e, st) {
+          msgProvider.showErrorSnackbar(e.toString());
+          lp.logError(st.toString());
+        }
+      },
+    );
+  }
+
+  Future<void> testBudget(BudgetProvider bp) async {
+    final newBudget = Budget.newBudget(
+      name: 'Test Budget',
+    );
+
+    final addedBudget = await bp.addBudget(newBudget);
+    assert(bp.budgets.values.isNotEmpty);
+
+    final budgetToUpdate = Budget.fromJson({
+      ...addedBudget.toJson(),
+      'name': 'Updated test budget',
+    });
+
+    final updateResponse = await bp.updateBudget(budgetToUpdate);
+    assert(updateResponse.budget.name == budgetToUpdate.name);
+
+    assert(bp.budgets[addedBudget.id]?.name == budgetToUpdate.name);
+
+    await bp.selectBudget(addedBudget.id);
+  }
+
+  Future<void> testCategory(BudgetProvider bp) async {
+    final budget = bp.currentBudget;
+
+    if (budget == null) {
+      throw Exception('No budget selected');
+    }
+
+    final newCat = ExpenseCategory.newCategory(
+      budgetId: budget.id,
+      name: 'Test Category',
+    );
+
+    final addedCat = await bp.addCategory(newCat);
+
+    assert(bp.categories.values.isNotEmpty);
+
+    final catToUpdate = ExpenseCategory.fromJson({
+      ...addedCat.toJson(),
+      'name': 'Updated test category',
+    });
+
+    final updateResponse = await bp.updateCategory(catToUpdate);
+    assert(updateResponse.category.name == catToUpdate.name);
+  }
+
+  Future<void> testExpense(BudgetProvider bp) async {
+    final budget = bp.currentBudget;
+
+    if (budget == null) {
+      throw Exception('No budget selected');
+    }
+
+    final category = bp.categories.values.first;
+
+    final target = WeeklyExpenseTarget(dayOfWeek: 1);
+    final newExpense = Expense.newExpense(
+      budgetId: budget.id,
+      categoryId: category.id,
+      description: 'Expense',
+      amount: 1,
+      expenseTarget: target,
+    );
+
+    final addedExpense = await bp.addExpense(newExpense);
+    assert(bp.expenses.values.isNotEmpty);
+
+    final expenseToUpdate = Expense.fromJson({
+      ...addedExpense.toJson(),
+      'description': 'Updated test expense',
+    });
+
+    final updateResponse = await bp.updateExpense(expenseToUpdate);
+    assert(updateResponse.expense.description == expenseToUpdate.description);
+  }
+
+  Future<void> testDeposit(BudgetProvider bp) async {
+    final budget = bp.currentBudget;
+
+    if (budget == null) {
+      throw Exception('No budget selected');
+    }
+
+    final deposit = DepositTransaction.newDeposit(
+      budgetId: budget.id,
+      description: 'Test Deposit',
+      amount: 100,
+    );
+
+    final addedDeposit = await bp.addDeposit(deposit);
+
+    final depositToUpdate = DepositTransaction.fromJson({
+      ...addedDeposit.deposit.toJson(),
+      'description': 'Updated test deposit',
+    });
+
+    final updateResponse = await bp.updateDeposit(depositToUpdate);
+    assert(updateResponse.deposit.description == depositToUpdate.description);
+  }
+
+  Future<void> testWithdrawal(BudgetProvider bp) async {
+    final budget = bp.currentBudget;
+
+    if (budget == null) {
+      throw Exception('No budget selected');
+    }
+
+    final expense = bp.expenses.values.first;
+
+    final withdrawal = WithdrawalTransaction.newWithdrawal(
+      budgetId: budget.id,
+      expenseId: expense.id,
+      description: 'Test withdrawal',
+      amount: 100,
+    );
+
+    final addedWithdrawal = await bp.addWithdrawal(withdrawal);
+
+    final withdrawalToUpdate = WithdrawalTransaction.fromJson({
+      ...addedWithdrawal.withdrawal.toJson(),
+      'description': 'Updated test withdrawal',
+    });
+
+    final updateResponse = await bp.updateWithdrawal(withdrawalToUpdate);
+    assert(updateResponse.withdrawal.description ==
+        withdrawalToUpdate.description);
+  }
+
+  Future<void> testReconciliation(BudgetProvider bp) async {
+    final budget = bp.currentBudget;
+
+    if (budget == null) {
+      throw Exception('No budget selected');
+    }
+
+    final recon = Reconciliation.newReconciliation(
+      budgetId: budget.id,
+      balance: 100,
+    );
+
+    await bp.addReconciliation(recon);
+
+    assert(bp.reconciliations.values.isNotEmpty);
+  }
+
+  Future<void> cleanup(BudgetProvider bp) async {
+    final reconciliation = bp.reconciliations.values.first;
+    final withdrawal = bp.withdrawals.values.first;
+    final deposit = bp.deposits.values.first;
+    final expense = bp.expenses.values.first;
+    final category = bp.categories.values.first;
+    final budget = bp.budgets.values.first;
+
+    await Future.wait([
+      bp.deleteReconciliation(reconciliation),
+      bp.deleteWithdrawal(withdrawal),
+      bp.deleteDeposit(deposit),
+      bp.deleteExpense(expense),
+      bp.deleteCategory(category),
+    ]);
+
+    await bp.deleteBudget(budget);
+
+    await bp.clearCache();
   }
 }

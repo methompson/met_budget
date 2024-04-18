@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:met_budget/data_models/budget.dart';
+import 'package:met_budget/ui/components/budgets/no_budget_selected.dart';
 import 'package:met_budget/ui/components/settings/debug_buttons.dart';
 import 'package:provider/provider.dart';
 
@@ -47,17 +49,17 @@ class CommonMargin extends StatelessWidget {
   }
 }
 
-// class SettingsSelectAUserButton extends SelectAUserButton {
-//   @override
-//   Widget build(BuildContext context) {
-//     return CommonMargin(BasicBigTextButton(
-//       onPressed: () => openSelectUserDialog(context),
-//       text: 'Select a User',
-//       topMargin: 10,
-//       bottomMargin: 10,
-//     ));
-//   }
-// }
+class SettingsSelectABudgetButton extends SelectABudgetButton {
+  @override
+  Widget build(BuildContext context) {
+    return CommonMargin(BasicBigTextButton(
+      onPressed: () => openSelectBudgetDialog(context),
+      text: 'Select a Budget',
+      topMargin: 10,
+      bottomMargin: 10,
+    ));
+  }
+}
 
 class SettingsContent extends StatelessWidget {
   @override
@@ -75,12 +77,12 @@ class SettingsContent extends StatelessWidget {
           'Settings Page',
           style: Theme.of(context).copyWith().textTheme.headlineMedium,
         )),
-        // CommonMargin(BasicBigTextButton(
-        //   onPressed: () => clearCache(context),
-        //   text: 'Clear Cache',
-        //   topMargin: 10,
-        //   bottomMargin: 10,
-        // )),
+        CommonMargin(BasicBigTextButton(
+          onPressed: () => clearCache(context),
+          text: 'Clear Cache',
+          topMargin: 10,
+          bottomMargin: 10,
+        )),
         // CommonMargin(Text('Total Tasks: ${vbp.totalTasks}')),
         // CommonMargin(BasicBigTextButton(
         //   onPressed: () => vbp.clearTaskQueue(),
@@ -88,7 +90,7 @@ class SettingsContent extends StatelessWidget {
         //   topMargin: 10,
         //   bottomMargin: 10,
         // )),
-        // SettingsSelectAUserButton(),
+        SettingsSelectABudgetButton(),
         CommonMargin(BasicBigTextButton(
           onPressed: () => context.push('/settings/logging'),
           text: 'Logging',
@@ -126,17 +128,17 @@ class SettingsContent extends StatelessWidget {
     ];
   }
 
-  // Future<void> clearCache(BuildContext context) async {
-  //   final vbProvider = context.read<ViceBankProvider>();
-  //   final msgProvider = context.read<MessagingProvider>();
+  Future<void> clearCache(BuildContext context) async {
+    final bProvider = context.read<BudgetProvider>();
+    final msgProvider = context.read<MessagingProvider>();
 
-  //   try {
-  //     await vbProvider.clearCache();
-  //     await vbProvider.getViceBankUsers();
-  //   } catch (e) {
-  //     msgProvider.showErrorSnackbar(e.toString());
-  //   }
-  // }
+    try {
+      await bProvider.clearCache();
+      await bProvider.getBudgets();
+    } catch (e) {
+      msgProvider.showErrorSnackbar(e.toString());
+    }
+  }
 
   logUserOut(BuildContext context) async {
     final authProvider = context.read<AuthenticationProvider>();

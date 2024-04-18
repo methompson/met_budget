@@ -114,25 +114,24 @@ class DataWatcherState extends State<DataWatcher> {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
-    // return Selector<BudgetProvider, String?>(
-    //   selector: (_, vbProvider) => vbProvider.currentUser?.id,
-    //   builder: (_, userId, __) {
-    //     if (userId == null) {
-    //       _timer?.cancel();
-    //       _timer = null;
-    //     } else {
-    //       getDataAndResetTimer();
-    //     }
+    return Selector<BudgetProvider, String?>(
+      selector: (_, bProvider) => bProvider.currentBudget?.id,
+      builder: (_, budgetId, __) {
+        if (budgetId == null) {
+          _timer?.cancel();
+          _timer = null;
+        } else {
+          getDataAndResetTimer();
+        }
 
-    //     return Container();
-    //   },
-    // );
+        return Container();
+      },
+    );
   }
 
   Future<void> getDataAndResetTimer() async {
     _timer?.cancel();
-    // await getApiData();
+    await getApiData();
     resetTimer();
   }
 
@@ -144,36 +143,36 @@ class DataWatcherState extends State<DataWatcher> {
     );
   }
 
-  // Future<void> getApiData() async {
-  //   try {
-  //     await Future.wait([
-  //       getUserData(),
-  //       getDataForUser(),
-  //     ]);
-  //   } catch (e) {
-  //     LoggingProvider.instance.logError('Error getting data: $e');
-  //   }
-  // }
+  Future<void> getApiData() async {
+    try {
+      await Future.wait([
+        getUserData(),
+        getDataForUser(),
+      ]);
+    } catch (e) {
+      LoggingProvider.instance.logError('Error getting data: $e');
+    }
+  }
 
-  // Future<void> getDataForUser() async {
-  //   final vbProvider = context.read<ViceBankProvider>();
-  //   if (vbProvider.currentUser == null) {
-  //     return;
-  //   }
+  Future<void> getDataForUser() async {
+    final bProvider = context.read<BudgetProvider>();
+    if (bProvider.currentBudget == null) {
+      return;
+    }
 
-  //   try {
-  //     await vbProvider.getAllUserData();
-  //   } catch (e) {
-  //     LoggingProvider.instance.logError('Error getting user data: $e');
-  //   }
-  // }
+    try {
+      // await bProvider.getAllUserData();
+    } catch (e) {
+      LoggingProvider.instance.logError('Error getting user data: $e');
+    }
+  }
 
-  // Future<void> getUserData() async {
-  //   final vbProvider = context.read<ViceBankProvider>();
-  //   try {
-  //     await vbProvider.getViceBankUsers();
-  //   } catch (e) {
-  //     LoggingProvider.instance.logError('Error getting user data: $e');
-  //   }
-  // }
+  Future<void> getUserData() async {
+    final bProvider = context.read<BudgetProvider>();
+    try {
+      await bProvider.getBudgets();
+    } catch (e) {
+      LoggingProvider.instance.logError('Error getting user data: $e');
+    }
+  }
 }

@@ -33,13 +33,13 @@ class Budget {
     );
   }
 
+  // Back End will fill in the userId for us
   factory Budget.newBudget({
-    required String userId,
     required String name,
   }) {
     return Budget(
       id: Uuid().v4(),
-      userId: userId,
+      userId: Uuid().v4(),
       name: name,
       currentFunds: 0,
     );

@@ -33,12 +33,11 @@ void main() {
     group('newBudget', () {
       test('returns a new object', () {
         final budget = Budget.newBudget(
-          userId: userId,
           name: name,
         );
 
         expect(budget.id, isNotNull);
-        expect(budget.userId, userId);
+        expect(budget.userId, isNotNull);
         expect(budget.name, name);
         expect(budget.currentFunds, 0);
       });

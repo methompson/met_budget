@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:met_budget/global_state/config_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'package:met_budget/api/budget_api.dart';
@@ -13,11 +14,26 @@ import 'package:met_budget/global_state/logging_provider.dart';
 import 'package:met_budget/global_state/messaging_provider.dart';
 import 'package:met_budget/ui/components/buttons.dart';
 
-class DebugButton extends StatelessWidget {
+class DebugButtons extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _APITests(),
+        _ProviderTest(),
+        _DisableDebugMode(),
+      ],
+    );
+  }
+}
+
+class _DebugButton extends StatelessWidget {
   final String buttonText;
   final dynamic Function() onPressed;
 
-  DebugButton({
+  _DebugButton({
     required this.buttonText,
     required this.onPressed,
   });
@@ -33,24 +49,10 @@ class DebugButton extends StatelessWidget {
   }
 }
 
-class DebugButtons extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _APITests(),
-        _ProviderTest(),
-      ],
-    );
-  }
-}
-
 class _APITests extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return DebugButton(
+    return _DebugButton(
       buttonText: 'All APIs Tests',
       onPressed: () async {
         final msgProvider = context.read<MessagingProvider>();
@@ -310,7 +312,7 @@ class _APITests extends StatelessWidget {
 class _ProviderTest extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return DebugButton(
+    return _DebugButton(
       buttonText: 'All Providers Tests',
       onPressed: () async {
         final bp = context.read<BudgetProvider>();
@@ -521,5 +523,17 @@ class _ProviderTest extends StatelessWidget {
     await bp.deleteBudget(budget);
 
     await bp.clearCache();
+  }
+}
+
+class _DisableDebugMode extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return _DebugButton(
+      buttonText: 'Disable Debug Mode',
+      onPressed: () {
+        ConfigProvider.instance.setConfig('debugMode', false);
+      },
+    );
   }
 }

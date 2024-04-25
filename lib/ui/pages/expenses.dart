@@ -1,15 +1,18 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
+import 'package:met_budget/data_models/budget.dart';
 import 'package:met_budget/data_models/expense.dart';
 import 'package:met_budget/data_models/expense_category.dart';
+import 'package:met_budget/ui/components/budgets/no_budget_selected.dart';
 import 'package:met_budget/ui/components/budget_header.dart';
 import 'package:met_budget/ui/components/expenses/add_expense_category_form.dart';
 import 'package:met_budget/ui/components/expenses/add_expense_form.dart';
 import 'package:met_budget/ui/components/page_container.dart';
-import 'package:provider/provider.dart';
-
-import 'package:met_budget/data_models/budget.dart';
+import 'package:met_budget/utils/day_and_date_utils.dart';
 import 'package:met_budget/global_state/budget_provider.dart';
-import 'package:met_budget/ui/components/budgets/no_budget_selected.dart';
 
 class ExpensesPage extends StatelessWidget {
   @override
@@ -33,20 +36,6 @@ class ExpensesPage extends StatelessWidget {
   }
 }
 
-class _CommonMargin extends StatelessWidget {
-  final Widget child;
-
-  const _CommonMargin(this.child);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20),
-      child: child,
-    );
-  }
-}
-
 class ExpensesContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -55,8 +44,9 @@ class ExpensesContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         BudgetHeader(),
-        _CommonMargin(
-          Row(
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 15),
+          child: Row(
             // mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -126,7 +116,10 @@ class CategoryData extends StatelessWidget {
       categoryWidgets.add(CategoryHeader(category: cat));
       final expenses = expensesByCategory[cat.id] ?? [];
       for (final ex in expenses) {
-        categoryWidgets.add(ExpenseCard(expense: ex));
+        categoryWidgets.add(Container(
+          margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+          child: ExpenseCard(expense: ex),
+        ));
       }
 
       expensesByCategory.remove(cat.id);
@@ -148,15 +141,18 @@ class CategoryHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Theme.of(context).colorScheme.inversePrimary,
-      child: _CommonMargin(Row(
-        children: [
-          Text(category.name),
-          IconButton(
-            icon: Icon(Icons.add_circle_outline),
-            onPressed: () => openAddExpenseDialog(context, category.id),
-          ),
-        ],
-      )),
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 15),
+        child: Row(
+          children: [
+            Text(category.name),
+            IconButton(
+              icon: Icon(Icons.add_circle_outline),
+              onPressed: () => openAddExpenseDialog(context, category.id),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -192,6 +188,111 @@ class ExpenseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(expense.description);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              child: TextField(
+                onTap: () => openEditExpenseDialog(context, expense),
+                readOnly: true,
+                controller: TextEditingController(text: expense.description),
+                style: Theme.of(context).textTheme.bodySmall,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.all(10),
+                  isDense: true,
+                ),
+              ),
+            ),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  IconButton(
+                    onPressed: () {},
+                    icon: Icon(CupertinoIcons.delete),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 1,
+              child: TextField(
+                onTap: () => openEditExpenseDialog(context, expense),
+                readOnly: true,
+                controller: TextEditingController(
+                    text: '\$${expense.amount.toString()}'),
+                style: Theme.of(context).textTheme.bodySmall,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.all(10),
+                  isDense: true,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Container(
+                margin: EdgeInsets.only(left: 10),
+                child: Text(
+                  expenseTargetDescription(),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String expenseTargetDescription() {
+    final target = expense.expenseTarget;
+    if (target is WeeklyExpenseTarget) {
+      return 'Weekly, every ${getDisplayDayOfWeek(target.dayOfWeek)}';
+    }
+
+    if (target is MonthlyExpenseTarget) {
+      return 'Monthly, by the ${getDisplayDayOfMonth(target.dayOfMonth)}';
+    }
+
+    if (target is DatedExpenseTarget) {
+      return 'By ${DateFormat("MM/dd/yyyy").format(target.date)}';
+    }
+
+    return 'Unknown Target Type';
+  }
+
+  Future<void> openEditExpenseDialog(
+    BuildContext context,
+    Expense expense,
+  ) async {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
+      ),
+      builder: (context) {
+        return Scaffold(
+          body: FullSizeContainer(
+            child: AddExpenseForm(
+              categoryId: expense.categoryId,
+              expense: expense,
+            ),
+          ),
+        );
+      },
+    );
   }
 }

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:met_budget/utils/day_and_date_utils.dart';
+import 'package:provider/provider.dart';
+
 import 'package:met_budget/data_models/expense.dart';
 import 'package:met_budget/data_models/messaging_data.dart';
 import 'package:met_budget/global_state/budget_provider.dart';
 import 'package:met_budget/global_state/messaging_provider.dart';
 import 'package:met_budget/ui/components/buttons.dart';
 import 'package:met_budget/ui/components/page_container.dart';
-import 'package:provider/provider.dart';
 
 List<int> createDayOfMonthList() {
   final List<int> dayOfMonth = [];
@@ -17,42 +19,22 @@ List<int> createDayOfMonthList() {
   return dayOfMonth;
 }
 
-String getDisplayDayOfMonth(int value) {
-  final int lastDigit = value % 10;
-
-  if (lastDigit == 1) {
-    return '${value}st';
-  } else if (lastDigit == 2) {
-    return '${value}nd';
-  } else if (lastDigit == 3) {
-    return '${value}rd';
-  }
-
-  return '${value}th';
-}
-
 final List<String> dropdownValues = [
   'Monthly',
   'Weekly',
   'Dated',
 ];
 
-final List<String> dayOfWeek = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-  'Sunday',
-];
-
 final List<int> dayOfMonth = createDayOfMonthList();
 
 class AddExpenseForm extends StatelessWidget {
   final String categoryId;
+  final Expense? expense;
 
-  AddExpenseForm({required this.categoryId});
+  AddExpenseForm({
+    required this.categoryId,
+    this.expense,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +43,10 @@ class AddExpenseForm extends StatelessWidget {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              child: AddExpenseFormContent(categoryId: categoryId),
+              child: AddExpenseFormContent(
+                categoryId: categoryId,
+                expense: expense,
+              ),
             ),
           ),
         ],
@@ -70,19 +55,10 @@ class AddExpenseForm extends StatelessWidget {
   }
 }
 
-class AddExpenseFormContent extends StatefulWidget {
-  final String categoryId;
-
-  AddExpenseFormContent({required this.categoryId});
-
-  @override
-  AddExpenseFormContentState createState() => AddExpenseFormContentState();
-}
-
-class CommonMargin extends StatelessWidget {
+class _CommonMargin extends StatelessWidget {
   final Widget child;
 
-  const CommonMargin(this.child);
+  const _CommonMargin(this.child);
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +67,19 @@ class CommonMargin extends StatelessWidget {
       child: child,
     );
   }
+}
+
+class AddExpenseFormContent extends StatefulWidget {
+  final String categoryId;
+  final Expense? expense;
+
+  AddExpenseFormContent({
+    required this.categoryId,
+    this.expense,
+  });
+
+  @override
+  AddExpenseFormContentState createState() => AddExpenseFormContentState();
 }
 
 class AddExpenseFormContentState extends State<AddExpenseFormContent> {
@@ -126,11 +115,41 @@ class AddExpenseFormContentState extends State<AddExpenseFormContent> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    final ex = widget.expense;
+
+    if (ex != null) {
+      _descriptionController.text = ex.description;
+      _amountController.text = ex.amount.toString();
+
+      final target = ex.expenseTarget;
+      if (target is MonthlyExpenseTarget) {
+        _expenseTargetController.text = 'Monthly';
+        _monthlyExpenseController.text = target.dayOfMonth.toString();
+        monthlyValue = target.dayOfMonth;
+      } else if (target is WeeklyExpenseTarget) {
+        _expenseTargetController.text = 'Weekly';
+        _weeklyExpenseController.text = dayOfWeek[target.dayOfWeek - 1];
+        weeklyValue = target.dayOfWeek;
+      } else if (target is DatedExpenseTarget) {
+        _expenseTargetController.text = 'Dated';
+        _datedExpenseController.text =
+            DateFormat("MM/dd/yyyy").format(target.date);
+        _selectedDate = target.date;
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final title = widget.expense == null ? 'Add Expense' : 'Edit Expense';
+    final buttonStr = widget.expense == null ? 'Add Expense' : 'Edit Expense';
+
     return Column(
       children: [
-        Text('Add an Expense'),
-        CommonMargin(
+        Text(title),
+        _CommonMargin(
           TextField(
             onChanged: (_) => setState(() {}),
             controller: _descriptionController,
@@ -141,7 +160,7 @@ class AddExpenseFormContentState extends State<AddExpenseFormContent> {
             ),
           ),
         ),
-        CommonMargin(
+        _CommonMargin(
           DropdownMenu<String>(
             initialSelection: null,
             controller: _expenseTargetController,
@@ -161,8 +180,9 @@ class AddExpenseFormContentState extends State<AddExpenseFormContent> {
           monthlyExpenseTargetUi(),
         if (_expenseTargetController.text == 'Weekly') weeklyExpenseTargetUi(),
         if (_expenseTargetController.text == 'Dated') datedExpenseTargetUi(),
-        CommonMargin(
+        _CommonMargin(
           TextField(
+            keyboardType: TextInputType.number,
             onChanged: (_) => setState(() {}),
             controller: _amountController,
             decoration: InputDecoration(
@@ -172,12 +192,12 @@ class AddExpenseFormContentState extends State<AddExpenseFormContent> {
             ),
           ),
         ),
-        CommonMargin(BasicBigTextButton(
+        _CommonMargin(BasicBigTextButton(
           disabled: !_isFormValid,
-          text: 'Add Expense',
-          onPressed: () => addExpense(context),
+          text: buttonStr,
+          onPressed: () => saveExpense(context),
         )),
-        CommonMargin(BasicBigTextButton(
+        _CommonMargin(BasicBigTextButton(
           text: 'Cancel',
           onPressed: () => closeModal(),
         )),
@@ -190,7 +210,7 @@ class AddExpenseFormContentState extends State<AddExpenseFormContent> {
         .map((val) => DropdownMenuEntry<int>(
             value: val, label: getDisplayDayOfMonth(val)))
         .toList();
-    return CommonMargin(DropdownMenu<int>(
+    return _CommonMargin(DropdownMenu<int>(
       initialSelection: null,
       controller: _monthlyExpenseController,
       label: Text('Day of Month'),
@@ -205,7 +225,7 @@ class AddExpenseFormContentState extends State<AddExpenseFormContent> {
   }
 
   Widget weeklyExpenseTargetUi() {
-    return CommonMargin(DropdownMenu<String>(
+    return _CommonMargin(DropdownMenu<String>(
       initialSelection: null,
       controller: _weeklyExpenseController,
       label: Text('Day of Week'),
@@ -227,7 +247,7 @@ class AddExpenseFormContentState extends State<AddExpenseFormContent> {
   }
 
   Widget datedExpenseTargetUi() {
-    return CommonMargin(TextField(
+    return _CommonMargin(TextField(
       readOnly: true,
       controller: _datedExpenseController,
       onTap: () async {
@@ -252,21 +272,18 @@ class AddExpenseFormContentState extends State<AddExpenseFormContent> {
     ));
   }
 
-  Future<void> addExpense(BuildContext context) async {
-    final bp = context.read<BudgetProvider>();
+  Future<void> saveExpense(BuildContext context) async {
     final msgProvider = context.read<MessagingProvider>();
 
-    final budgetId = bp.currentBudget?.id;
+    final oldExpense = widget.expense;
 
+    final loadingTxt =
+        oldExpense == null ? 'Saving New Expense' : 'Updating Expense';
     msgProvider.setLoadingScreenData(
-      LoadingScreenData(message: 'Saving New Expense'),
+      LoadingScreenData(message: loadingTxt),
     );
 
     try {
-      if (budgetId == null) {
-        throw Exception('No Budget Selected');
-      }
-
       final ExpenseTarget expenseTarget;
 
       if (_expenseTargetController.text == 'Monthly') {
@@ -297,23 +314,55 @@ class AddExpenseFormContentState extends State<AddExpenseFormContent> {
         throw Exception('Invalid Expense Target');
       }
 
-      final expense = Expense.newExpense(
-        budgetId: budgetId,
-        categoryId: widget.categoryId,
-        description: _descriptionController.text,
-        amount: num.parse(_amountController.text),
-        expenseTarget: expenseTarget,
-      );
+      if (oldExpense != null) {
+        await editExpense(context, oldExpense, expenseTarget);
+      }
 
-      await bp.addExpense(expense);
-
-      msgProvider.showSuccessSnackbar('Expense Created');
       closeModal();
     } catch (e) {
       msgProvider.showErrorSnackbar('Creating Expense Failed: $e');
     }
 
     msgProvider.clearLoadingScreen();
+  }
+
+  Future<void> addExpense(
+    BuildContext context,
+    ExpenseTarget expenseTarget,
+  ) async {
+    final bp = context.read<BudgetProvider>();
+
+    final budgetId = bp.currentBudget?.id;
+
+    if (budgetId == null) {
+      throw Exception('No Budget Selected');
+    }
+
+    final expense = Expense.newExpense(
+      budgetId: budgetId,
+      categoryId: widget.categoryId,
+      description: _descriptionController.text,
+      amount: num.parse(_amountController.text),
+      expenseTarget: expenseTarget,
+    );
+
+    await bp.addExpense(expense);
+  }
+
+  Future<void> editExpense(
+    BuildContext context,
+    Expense oldExpense,
+    ExpenseTarget expenseTarget,
+  ) async {
+    final expense = Expense.fromJson({
+      ...oldExpense.toJson(),
+      'description': _descriptionController.text,
+      'amount': num.parse(_amountController.text),
+      'expenseTarget': expenseTarget.toJson(),
+    });
+
+    final bp = context.read<BudgetProvider>();
+    await bp.updateExpense(expense);
   }
 
   void closeModal() {

@@ -88,7 +88,7 @@ class BudgetProvider extends ChangeNotifier {
 
     notifyListeners();
 
-    await persistData();
+    await persistAllData();
   }
 
   Future<void> getAllBudgetData() async {
@@ -101,27 +101,56 @@ class BudgetProvider extends ChangeNotifier {
     ]);
   }
 
-  Future<void> persistData() async {
-    final budgets = _budgets.values.map((b) => b.toJson()).toList();
-    final categories = _categories.values.map((c) => c.toJson()).toList();
-    final expenses = _expenses.values.map((e) => e.toJson()).toList();
-    final deposits = _deposits.values.map((d) => d.toJson()).toList();
-    final withdrawals = _withdrawals.values.map((w) => w.toJson()).toList();
-    final reconciliations =
-        _reconciliations.values.map((r) => r.toJson()).toList();
-
+  Future<void> persistAllData() async {
     final String selectedBudget = _currentBudget ?? '';
 
     final dp = DataProvider.instance;
     await Future.wait([
-      dp.setData('budgets', jsonEncode(budgets)),
-      dp.setData('categories', jsonEncode(categories)),
-      dp.setData('expenses', jsonEncode(expenses)),
-      dp.setData('deposits', jsonEncode(deposits)),
-      dp.setData('withdrawals', jsonEncode(withdrawals)),
-      dp.setData('reconciliations', jsonEncode(reconciliations)),
+      persistBudgets(),
+      persistCategories(),
+      persistExpenses(),
+      persistDeposits(),
+      persistWithdrawals(),
+      persistReconciliations(),
       dp.setData('selectedBudget', selectedBudget),
     ]);
+  }
+
+  Future<void> persistBudgets() async {
+    final budgets = _budgets.values.map((b) => b.toJson()).toList();
+    final dp = DataProvider.instance;
+    await dp.setData('budgets', jsonEncode(budgets));
+  }
+
+  Future<void> persistCategories() async {
+    final categories = _categories.values.map((c) => c.toJson()).toList();
+    final dp = DataProvider.instance;
+    await dp.setData('categories', jsonEncode(categories));
+  }
+
+  Future<void> persistExpenses() async {
+    final expenses = _expenses.values.map((e) => e.toJson()).toList();
+    final dp = DataProvider.instance;
+    await dp.setData('expenses', jsonEncode(expenses));
+  }
+
+  Future<void> persistDeposits() async {
+    final deposits = _deposits.values.map((d) => d.toJson()).toList();
+    final dp = DataProvider.instance;
+    await dp.setData('deposits', jsonEncode(deposits));
+  }
+
+  Future<void> persistWithdrawals() async {
+    final withdrawals = _withdrawals.values.map((w) => w.toJson()).toList();
+    final dp = DataProvider.instance;
+    await dp.setData('withdrawals', jsonEncode(withdrawals));
+  }
+
+  Future<void> persistReconciliations() async {
+    final reconciliations =
+        _reconciliations.values.map((r) => r.toJson()).toList();
+    final dp = DataProvider.instance;
+    await dp.setData('reconciliations', jsonEncode(reconciliations));
   }
 
   Future<void> retrievePersistedData() async {
@@ -310,6 +339,8 @@ class BudgetProvider extends ChangeNotifier {
 
     notifyListeners();
 
+    persistExpenses();
+
     return newExpense;
   }
 
@@ -320,6 +351,8 @@ class BudgetProvider extends ChangeNotifier {
     _expenses[response.expense.id] = response.expense;
 
     notifyListeners();
+
+    persistExpenses();
 
     return response;
   }

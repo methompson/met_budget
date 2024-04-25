@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class NavBar extends StatelessWidget {
@@ -11,16 +12,16 @@ class NavBar extends StatelessWidget {
     return CupertinoTabBar(
       items: [
         BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.home),
-          label: 'Home',
+          icon: Icon(Icons.payments_outlined),
+          label: 'Budget',
         ),
         BottomNavigationBarItem(
           icon: Icon(CupertinoIcons.money_dollar_circle),
           label: 'Expenses',
         ),
         BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.arrow_up_arrow_down_circle),
-          label: 'Transactions',
+          icon: Icon(CupertinoIcons.plus_circle),
+          label: 'Reports',
         ),
         BottomNavigationBarItem(
           icon: Icon(CupertinoIcons.settings),

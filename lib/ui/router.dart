@@ -1,19 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
-import 'package:met_budget/ui/pages/expenses.dart';
-import 'package:met_budget/ui/pages/transactions.dart';
+import 'package:met_budget/ui/pages/budget.dart';
 import 'package:provider/provider.dart';
 
-import 'package:met_budget/ui/pages/login.dart';
-
 // Pages
+import 'package:met_budget/ui/pages/expenses.dart';
+import 'package:met_budget/ui/pages/reports.dart';
+import 'package:met_budget/ui/pages/login.dart';
 import 'package:met_budget/ui/pages/logging.dart';
 import 'package:met_budget/ui/pages/start.dart';
-import 'package:met_budget/ui/pages/home.dart';
-// import 'package:met_budget/ui/pages/login.dart';
-// import 'package:met_budget/ui/pages/deposits.dart';
 import 'package:met_budget/ui/pages/settings.dart';
-// import 'package:met_budget/ui/pages/withdrawals.dart';
 
 import 'package:met_budget/ui/components/messenger.dart';
 import 'package:met_budget/ui/components/page_container.dart';
@@ -62,12 +58,12 @@ final router = GoRouter(
             StatefulShellBranch(
               routes: [
                 GoRoute(
-                  name: 'home',
+                  name: 'budget',
                   path: '/home',
                   builder: (_, __) => Stack(
                     children: [
                       DataWatcher(),
-                      HomePage(),
+                      BudgetPage(),
                     ],
                   ),
                 ),
@@ -85,9 +81,9 @@ final router = GoRouter(
             StatefulShellBranch(
               routes: [
                 GoRoute(
-                  name: 'transactions',
-                  path: '/transactions',
-                  builder: (_, __) => TransactionsPage(),
+                  name: 'reports',
+                  path: '/reports',
+                  builder: (_, __) => ReportsPage(),
                 ),
               ],
             ),

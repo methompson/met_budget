@@ -38,6 +38,8 @@ String expenseTargetTypeToString(ExpenseTargetType type) {
 abstract class ExpenseTarget {
   Map<String, dynamic> toJson();
 
+  ExpenseTargetType get expenseTargetType;
+
   static fromJson(dynamic input) {
     const errMsg = 'ExpenseTarget.fromJson Failed:';
 
@@ -63,6 +65,9 @@ abstract class ExpenseTarget {
 
 class WeeklyExpenseTarget extends ExpenseTarget {
   final int dayOfWeek;
+
+  @override
+  ExpenseTargetType get expenseTargetType => ExpenseTargetType.weekly;
 
   WeeklyExpenseTarget({
     required this.dayOfWeek,
@@ -108,6 +113,9 @@ class WeeklyExpenseTarget extends ExpenseTarget {
 class MonthlyExpenseTarget extends ExpenseTarget {
   final int dayOfMonth;
 
+  @override
+  ExpenseTargetType get expenseTargetType => ExpenseTargetType.monthly;
+
   MonthlyExpenseTarget({
     required this.dayOfMonth,
   });
@@ -149,6 +157,9 @@ class MonthlyExpenseTarget extends ExpenseTarget {
 
 class DatedExpenseTarget extends ExpenseTarget {
   final DateTime date;
+
+  @override
+  ExpenseTargetType get expenseTargetType => ExpenseTargetType.dated;
 
   DatedExpenseTarget({
     required this.date,

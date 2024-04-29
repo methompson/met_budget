@@ -11,7 +11,7 @@ import 'package:met_budget/data_models/expense_category.dart';
 import 'package:met_budget/data_models/reconciliation.dart';
 import 'package:met_budget/data_models/withdrawal_transaction.dart';
 import 'package:met_budget/global_state/logging_provider.dart';
-import 'package:met_budget/utils/8601_date.dart';
+import 'package:met_budget/utils/to_8601_date.dart';
 import 'package:met_budget/utils/type_checker.dart';
 
 typedef AddDepositResponse = ({

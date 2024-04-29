@@ -79,7 +79,8 @@ final lightTheme = ThemeData.light().copyWith(
     style: commonFilledButtonStyle,
   ),
   textTheme: lightTextTheme,
-  // cardTheme: lightCardTheme,
+  splashColor: Colors.transparent,
+  highlightColor: Colors.transparent,
 );
 
 final darkTheme = ThemeData.dark().copyWith(
@@ -93,4 +94,6 @@ final darkTheme = ThemeData.dark().copyWith(
     style: commonFilledButtonStyle,
   ),
   textTheme: darkTextTheme,
+  splashColor: Colors.transparent,
+  highlightColor: Colors.transparent,
 );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:met_budget/data_models/budget.dart';
 import 'package:met_budget/ui/components/budget_header.dart';
 import 'package:provider/provider.dart';
 
@@ -67,7 +66,7 @@ class SettingsContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final configProvider = context.watch<ConfigProvider>();
-    final bp = context.watch<BudgetProvider>();
+    // final bp = context.watch<BudgetProvider>();
     final debugMode = configProvider.getConfig('debugMode').boolean;
 
     return Column(

@@ -78,8 +78,8 @@ class BudgetsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bpProvider = context.read<BudgetProvider>();
-    final budgets = bpProvider.budgetsList;
+    final bp = context.read<BudgetProvider>();
+    final budgets = bp.budgetsList;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -101,7 +101,7 @@ class BudgetsList extends StatelessWidget {
                 title: Text(budget.name),
                 subtitle: Text('\$${budget.currentFunds.toStringAsFixed(2)}'),
                 onTap: () {
-                  bpProvider.selectBudget(budget.id);
+                  bp.selectBudget(budget.id);
                   if (inModal) {
                     Navigator.pop(context);
                   }

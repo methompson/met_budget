@@ -77,6 +77,7 @@ class BudgetProvider extends ChangeNotifier {
     _currentBudget = budget?.id;
 
     if (_currentBudget == null) {
+      _budgets = {};
       _categories = {};
       _expenses = {};
       _deposits = {};
@@ -86,9 +87,9 @@ class BudgetProvider extends ChangeNotifier {
       await getAllBudgetData();
     }
 
-    notifyListeners();
-
     await persistAllData();
+
+    notifyListeners();
   }
 
   Future<void> getAllBudgetData() async {

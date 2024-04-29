@@ -76,10 +76,9 @@ class ExpensesContent extends StatelessWidget {
           top: Radius.circular(20),
         ),
       ),
-      builder: (context) {
-        return Scaffold(
-            body: FullSizeContainer(child: AddExpenseCategoryForm()));
-      },
+      builder: (context) => Scaffold(
+        body: FullSizeContainer(child: AddExpenseCategoryForm()),
+      ),
     );
   }
 }

@@ -5,6 +5,7 @@ void main() {
   const id = 'transactionId';
   const budgetId = 'budgetId';
   const expenseId = 'expenseId';
+  const payee = 'Italian Restaurant';
   const description = 'My description';
   const dateTimeStr = '2024-04-15T12:00:00.000Z';
   const amount = 100.00;
@@ -15,6 +16,7 @@ void main() {
     'id': id,
     'budgetId': budgetId,
     'expenseId': expenseId,
+    'payee': payee,
     'description': description,
     'dateTime': dateTimeStr,
     'amount': amount,
@@ -27,6 +29,7 @@ void main() {
           id: id,
           budgetId: budgetId,
           expenseId: expenseId,
+          payee: payee,
           description: description,
           dateTime: dateTime,
           amount: amount,
@@ -41,6 +44,7 @@ void main() {
         final wd = WithdrawalTransaction.newWithdrawal(
           budgetId: budgetId,
           expenseId: expenseId,
+          payee: payee,
           description: description,
           amount: amount,
         );

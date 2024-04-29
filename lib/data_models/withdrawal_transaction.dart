@@ -7,6 +7,7 @@ class WithdrawalTransaction {
   final String id;
   final String budgetId;
   final String expenseId;
+  final String payee;
   final String description;
   final DateTime dateTime;
   final num amount;
@@ -15,6 +16,7 @@ class WithdrawalTransaction {
     required this.id,
     required this.budgetId,
     required this.expenseId,
+    required this.payee,
     required this.description,
     required this.dateTime,
     required this.amount,
@@ -25,6 +27,7 @@ class WithdrawalTransaction {
       'id': id,
       'budgetId': budgetId,
       'expenseId': expenseId,
+      'payee': payee,
       'description': description,
       'dateTime': dateTime.toIso8601String(),
       'amount': amount,
@@ -34,6 +37,7 @@ class WithdrawalTransaction {
   factory WithdrawalTransaction.newWithdrawal({
     required String budgetId,
     required String expenseId,
+    required String payee,
     required String description,
     required num amount,
   }) {
@@ -41,6 +45,7 @@ class WithdrawalTransaction {
       id: Uuid().v4(),
       budgetId: budgetId,
       expenseId: expenseId,
+      payee: payee,
       description: description,
       dateTime: DateTime.now(),
       amount: amount,
@@ -67,6 +72,10 @@ class WithdrawalTransaction {
       json['expenseId'],
       message: '$errMsg expenseId',
     );
+    final payee = isTypeError<String>(
+      json['payee'],
+      message: '$errMsg payee',
+    );
     final description = isTypeError<String>(
       json['description'],
       message: '$errMsg description',
@@ -85,6 +94,7 @@ class WithdrawalTransaction {
       id: id,
       budgetId: budgetId,
       expenseId: expenseId,
+      payee: payee,
       description: description,
       dateTime: DateTime.parse(dateTime),
       amount: amount,

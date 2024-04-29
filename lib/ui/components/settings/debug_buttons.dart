@@ -191,6 +191,7 @@ class _APITests extends StatelessWidget {
 
     final deposit = DepositTransaction.newDeposit(
       budgetId: budget.id,
+      payor: 'my job',
       description: 'Test Deposit',
       amount: 100,
     );
@@ -234,6 +235,7 @@ class _APITests extends StatelessWidget {
     final withdrawal = WithdrawalTransaction.newWithdrawal(
       budgetId: budget.id,
       expenseId: expense.id,
+      payee: 'Italian Restaurant',
       description: 'Test withdrawal',
       amount: 100,
     );
@@ -444,6 +446,7 @@ class _ProviderTest extends StatelessWidget {
 
     final deposit = DepositTransaction.newDeposit(
       budgetId: budget.id,
+      payor: 'my jobb',
       description: 'Test Deposit',
       amount: 100,
     );
@@ -471,6 +474,7 @@ class _ProviderTest extends StatelessWidget {
     final withdrawal = WithdrawalTransaction.newWithdrawal(
       budgetId: budget.id,
       expenseId: expense.id,
+      payee: 'Italian Restaurant',
       description: 'Test withdrawal',
       amount: 100,
     );

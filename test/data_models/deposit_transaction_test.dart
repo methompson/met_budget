@@ -4,6 +4,7 @@ import 'package:met_budget/data_models/deposit_transaction.dart';
 void main() {
   const id = 'transactionId';
   const budgetId = 'budgetId';
+  const payor = 'my job';
   const description = 'My description';
   const dateTimeStr = '2024-04-15T12:00:00.000Z';
   const amount = 100.00;
@@ -13,6 +14,7 @@ void main() {
   final validDeposit = {
     'id': id,
     'budgetId': budgetId,
+    'payor': payor,
     'description': description,
     'dateTime': dateTimeStr,
     'amount': amount,
@@ -24,6 +26,7 @@ void main() {
         final dep = DepositTransaction(
           id: id,
           budgetId: budgetId,
+          payor: payor,
           description: description,
           dateTime: dateTime,
           amount: amount,
@@ -37,6 +40,7 @@ void main() {
       test('returns a new object', () {
         final dep = DepositTransaction.newDeposit(
           budgetId: budgetId,
+          payor: payor,
           description: description,
           amount: amount,
         );

@@ -40,6 +40,7 @@ class WithdrawalTransaction {
     required String payee,
     required String description,
     required num amount,
+    DateTime? date,
   }) {
     return WithdrawalTransaction(
       id: Uuid().v4(),
@@ -47,7 +48,7 @@ class WithdrawalTransaction {
       expenseId: expenseId,
       payee: payee,
       description: description,
-      dateTime: DateTime.now(),
+      dateTime: date ?? DateTime.now(),
       amount: amount,
     );
   }

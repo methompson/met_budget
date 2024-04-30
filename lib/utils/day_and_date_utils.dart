@@ -16,7 +16,9 @@ String getDisplayDayOfWeek(int value) {
 String getDisplayDayOfMonth(int value) {
   final int lastDigit = value % 10;
 
-  if (lastDigit == 1) {
+  if (value == 11 || value == 12 || value == 13) {
+    return '${value}th';
+  } else if (lastDigit == 1) {
     return '${value}st';
   } else if (lastDigit == 2) {
     return '${value}nd';

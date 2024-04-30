@@ -37,6 +37,10 @@ class BudgetProvider extends ChangeNotifier {
     return list;
   }
 
+  List<Expense> get expensesList {
+    return _expenses.values.toList();
+  }
+
   List<DepositTransaction> get depositsList {
     final list = _deposits.values.toList();
     list.sort((a, b) => b.dateTime.compareTo(a.dateTime));
@@ -49,9 +53,32 @@ class BudgetProvider extends ChangeNotifier {
     return list;
   }
 
+  List<WithdrawalTransaction> get currentPeriodWithdrawalsList {
+    final now = DateTime.now();
+    final thisMonth = DateTime(now.year, now.month, 1);
+    final list = _withdrawals.values
+        .where((el) => el.dateTime.isAfter(thisMonth))
+        .toList();
+
+    list.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+
+    return list;
+  }
+
   List<Reconciliation> get reconciliationsList {
     final list = _reconciliations.values.toList();
     list.sort((a, b) => b.date.compareTo(a.date));
+    return list;
+  }
+
+  List<DepositTransaction> get currentPeriodDepositsList {
+    final now = DateTime.now();
+    final thisMonth = DateTime(now.year, now.month, 1);
+    final list =
+        _deposits.values.where((el) => el.dateTime.isAfter(thisMonth)).toList();
+
+    list.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+
     return list;
   }
 
@@ -387,8 +414,10 @@ class BudgetProvider extends ChangeNotifier {
       st = startTime;
       et = endTime;
     } else {
+      // We're getting the past month and last month's deposits. This way,
+      // we can pre-populate the list with the previous month's data.
       final now = DateTime.now();
-      st = DateTime(now.year, now.month, 1);
+      st = DateTime(now.year, now.month - 1, 1);
       et = DateTime(now.year, now.month + 1, 0);
     }
 
@@ -471,8 +500,10 @@ class BudgetProvider extends ChangeNotifier {
       st = startTime;
       et = endTime;
     } else {
+      // We're getting the past month and last month's withdrawals. This way,
+      // we can pre-populate the list with the previous month's data.
       final now = DateTime.now();
-      st = DateTime(now.year, now.month, 1);
+      st = DateTime(now.year, now.month - 1, 1);
       et = DateTime(now.year, now.month + 1, 0);
     }
 

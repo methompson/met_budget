@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:met_budget/ui/components/budgets/budget_list.dart';
 import 'package:provider/provider.dart';
 
 import 'package:met_budget/data_models/budget.dart';
@@ -37,7 +38,7 @@ class _BudgetContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         BudgetHeader(),
-        Text('Budget Page'),
+        BudgetList(),
       ],
     );
   }

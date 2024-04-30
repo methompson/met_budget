@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:met_budget/ui/components/form_utils.dart';
 import 'package:met_budget/utils/day_and_date_utils.dart';
 import 'package:provider/provider.dart';
 
@@ -62,10 +63,7 @@ class _CommonMargin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: child,
-    );
+    return FieldMargin(child);
   }
 }
 
@@ -148,7 +146,12 @@ class AddExpenseFormContentState extends State<AddExpenseFormContent> {
 
     return Column(
       children: [
-        Text(title),
+        _CommonMargin(
+          Text(
+            title,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+        ),
         _CommonMargin(
           TextField(
             onChanged: (_) => setState(() {}),
@@ -162,10 +165,11 @@ class AddExpenseFormContentState extends State<AddExpenseFormContent> {
         ),
         _CommonMargin(
           DropdownMenu<String>(
+            requestFocusOnTap: false,
             initialSelection: null,
             controller: _expenseTargetController,
             label: Text('Select Expense Type'),
-            expandedInsets: EdgeInsets.all(0),
+            expandedInsets: EdgeInsets.zero,
             dropdownMenuEntries: dropdownValues
                 .map((val) => DropdownMenuEntry<String>(value: val, label: val))
                 .toList(),
@@ -316,6 +320,8 @@ class AddExpenseFormContentState extends State<AddExpenseFormContent> {
 
       if (oldExpense != null) {
         await editExpense(context, oldExpense, expenseTarget);
+      } else {
+        await addExpense(context, expenseTarget);
       }
 
       closeModal();

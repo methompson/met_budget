@@ -37,13 +37,14 @@ class DepositTransaction {
     required String payor,
     required String description,
     required num amount,
+    DateTime? date,
   }) {
     return DepositTransaction(
       id: Uuid().v4(),
       budgetId: budgetId,
       payor: payor,
       description: description,
-      dateTime: DateTime.now(),
+      dateTime: date ?? DateTime.now(),
       amount: amount,
     );
   }

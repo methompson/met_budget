@@ -1,25 +1,21 @@
 import 'dart:convert';
 import 'package:uuid/uuid.dart';
 
+import 'package:met_budget/data_models/budget_transaction.dart';
 import 'package:met_budget/utils/type_checker.dart';
 
-class WithdrawalTransaction {
-  final String id;
-  final String budgetId;
+class WithdrawalTransaction extends BudgetTransaction {
   final String expenseId;
   final String payee;
-  final String description;
-  final DateTime dateTime;
-  final num amount;
 
   WithdrawalTransaction({
-    required this.id,
-    required this.budgetId,
+    required super.id,
+    required super.budgetId,
     required this.expenseId,
     required this.payee,
-    required this.description,
-    required this.dateTime,
-    required this.amount,
+    required super.description,
+    required super.dateTime,
+    required super.amount,
   });
 
   Map<String, dynamic> toJson() {

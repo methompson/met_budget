@@ -1,24 +1,20 @@
 import 'dart:convert';
 
+import 'package:met_budget/data_models/budget_transaction.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:met_budget/utils/type_checker.dart';
 
-class DepositTransaction {
-  final String id;
-  final String budgetId;
+class DepositTransaction extends BudgetTransaction {
   final String payor;
-  final String description;
-  final DateTime dateTime;
-  final num amount;
 
   DepositTransaction({
-    required this.id,
-    required this.budgetId,
+    required super.id,
+    required super.budgetId,
     required this.payor,
-    required this.description,
-    required this.dateTime,
-    required this.amount,
+    required super.description,
+    required super.dateTime,
+    required super.amount,
   });
 
   Map<String, dynamic> toJson() {

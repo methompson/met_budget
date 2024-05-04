@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:met_budget/ui/components/budget_header.dart';
+import 'package:met_budget/ui/components/transactions/transaction_list.dart';
 import 'package:provider/provider.dart';
 
 import 'package:met_budget/data_models/budget.dart';
 import 'package:met_budget/global_state/budget_provider.dart';
+import 'package:met_budget/ui/components/budget_header.dart';
 import 'package:met_budget/ui/components/budgets/no_budget_selected.dart';
 import 'package:met_budget/ui/components/page_container.dart';
 
-class ReportsPage extends StatelessWidget {
+class TransactionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Selector<BudgetProvider, Budget?>(
       selector: (_, budgetProvider) => budgetProvider.currentBudget,
       builder: (context, budget, _) {
         final child =
-            budget != null ? _ReportsPageContent() : NoBudgetSelected();
+            budget != null ? _TransactionPageContent() : NoBudgetSelected();
 
         return CenteredFullSizeContainer(
           child: Column(
@@ -30,7 +31,7 @@ class ReportsPage extends StatelessWidget {
   }
 }
 
-class _ReportsPageContent extends StatelessWidget {
+class _TransactionPageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -38,7 +39,9 @@ class _ReportsPageContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         BudgetHeader(),
-        Text('Reports List'),
+        Expanded(
+          child: TransactionList(),
+        ),
       ],
     );
   }

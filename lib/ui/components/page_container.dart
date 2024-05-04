@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:met_budget/ui/components/add_transaction_fab.dart';
 import 'package:provider/provider.dart';
 
 import 'package:met_budget/global_state/logging_provider.dart';
@@ -32,19 +33,27 @@ class PageContainer extends StatelessWidget {
 class NavContainer extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
   final PreferredSizeWidget? appBar;
+  final bool showFAB;
 
   NavContainer({
     required this.navigationShell,
     this.appBar,
+    this.showFAB = true,
   });
 
   @override
   Widget build(BuildContext context) {
     final padding = AgentGetter().isPWA() ? 25.0 : 0.0;
 
+    final fab = Offstage(
+      offstage: !showFAB,
+      child: AddTransactionFAB(),
+    );
+
     return Scaffold(
       appBar: appBar,
       body: SafeArea(child: AuthenticationWatcher(navigationShell)),
+      floatingActionButton: fab,
       bottomNavigationBar: Container(
         padding: EdgeInsets.only(bottom: padding, top: 1),
         child: NavBar(navigationShell: navigationShell),

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:met_budget/ui/pages/budget.dart';
+import 'package:met_budget/ui/pages/transactions.dart';
 import 'package:provider/provider.dart';
 
 // Pages
@@ -50,7 +51,15 @@ final router = GoRouter(
         // Authentication Aware Routes & Menu Routes
         StatefulShellRoute.indexedStack(
           builder: (_, routerState, navigationShell) {
+            final fabShowRoutes = [
+              '/home',
+              '/transactionsList',
+              '/expenses',
+            ];
+            final shouldShowFAB = fabShowRoutes.contains(routerState.fullPath);
+
             return NavContainer(
+              showFAB: shouldShowFAB,
               navigationShell: navigationShell,
             );
           },
@@ -66,6 +75,15 @@ final router = GoRouter(
                       BudgetPage(),
                     ],
                   ),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  name: 'transactionsList',
+                  path: '/transactionsList',
+                  builder: (_, __) => TransactionsPage(),
                 ),
               ],
             ),

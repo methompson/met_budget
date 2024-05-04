@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:met_budget/data_models/expense.dart';
 import 'package:met_budget/data_models/expense_category.dart';
-import 'package:met_budget/data_models/withdrawal_transaction.dart';
 import 'package:met_budget/global_state/budget_provider.dart';
-import 'package:provider/provider.dart';
 
 class CategoryExpansionListItem {
   final ExpenseCategory category;
@@ -98,11 +98,39 @@ class ExpenseItem extends StatelessWidget {
       (previousValue, element) => previousValue + element.amount,
     );
 
-    return Column(
-      children: [
-        Text(expense.description),
-        Text('$totalWithdrawals / ${expense.amount}'),
-      ],
+    final progress = totalWithdrawals / expense.amount;
+    final color = progress > 1 ? Colors.deepOrange : Colors.green;
+    final backgroundColor =
+        MediaQuery.of(context).platformBrightness == Brightness.dark
+            ? Colors.grey[800]
+            : Colors.grey[200];
+
+    final remaining = expense.amount - totalWithdrawals;
+
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(expense.description),
+              Text('\$${totalWithdrawals.toStringAsFixed(2)}'),
+            ],
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(vertical: 5),
+            child: LinearProgressIndicator(
+              value: progress,
+              color: color,
+              backgroundColor: backgroundColor,
+              minHeight: 10,
+            ),
+          ),
+          Text('\$${remaining.toStringAsFixed(2)} Reamining'),
+        ],
+      ),
     );
   }
 }

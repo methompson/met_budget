@@ -1,0 +1,1 @@
+When an expense target is added, it doesn't show in the budget list unless I clear cache.

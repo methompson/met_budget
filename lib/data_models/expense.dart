@@ -100,7 +100,7 @@ class WeeklyExpenseTarget extends ExpenseTarget {
       message: '$errMsg dayOfWeek',
     );
 
-    if (dayOfWeek < 1 || dayOfWeek > 7) {
+    if (dayOfWeek < 0 || dayOfWeek > 7) {
       throw InvalidInputException('Invalid dayOfWeek: $dayOfWeek');
     }
 

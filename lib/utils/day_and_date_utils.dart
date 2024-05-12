@@ -1,16 +1,16 @@
 final List<String> dayOfWeek = [
+  'Sunday',
   'Monday',
   'Tuesday',
   'Wednesday',
   'Thursday',
   'Friday',
   'Saturday',
-  'Sunday',
 ];
 
 String getDisplayDayOfWeek(int value) {
   final dow = value % 7;
-  return dayOfWeek[dow - 1];
+  return dayOfWeek[dow];
 }
 
 String getDisplayDayOfMonth(int value) {

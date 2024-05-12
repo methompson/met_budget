@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:met_budget/ui/components/form_utils.dart';
-import 'package:met_budget/utils/day_and_date_utils.dart';
 import 'package:provider/provider.dart';
 
 import 'package:met_budget/data_models/expense.dart';
@@ -9,7 +7,9 @@ import 'package:met_budget/data_models/messaging_data.dart';
 import 'package:met_budget/global_state/budget_provider.dart';
 import 'package:met_budget/global_state/messaging_provider.dart';
 import 'package:met_budget/ui/components/buttons.dart';
+import 'package:met_budget/ui/components/form_utils.dart';
 import 'package:met_budget/ui/components/page_container.dart';
+import 'package:met_budget/utils/day_and_date_utils.dart';
 
 List<int> createDayOfMonthList() {
   final List<int> dayOfMonth = [];
@@ -173,8 +173,6 @@ class AddExpenseFormContentState extends State<AddExpenseFormContent> {
             dropdownMenuEntries: dropdownValues
                 .map((val) => DropdownMenuEntry<String>(value: val, label: val))
                 .toList(),
-            // dropdownColor: Theme.of(context).scaffoldBackgroundColor,
-            // focusColor: Theme.of(context).scaffoldBackgroundColor,
             onSelected: (val) {
               setState(() {});
             },
@@ -190,6 +188,7 @@ class AddExpenseFormContentState extends State<AddExpenseFormContent> {
             onChanged: (_) => setState(() {}),
             controller: _amountController,
             decoration: InputDecoration(
+              prefix: Text('\$'),
               border: OutlineInputBorder(),
               labelStyle: Theme.of(context).textTheme.bodyMedium,
               labelText: 'Amount',
@@ -220,8 +219,6 @@ class AddExpenseFormContentState extends State<AddExpenseFormContent> {
       label: Text('Day of Month'),
       expandedInsets: EdgeInsets.all(0),
       dropdownMenuEntries: menuEntries,
-      // dropdownColor: Theme.of(context).scaffoldBackgroundColor,
-      // focusColor: Theme.of(context).scaffoldBackgroundColor,
       onSelected: (val) => setState(() {
         monthlyValue = val;
       }),
@@ -237,15 +234,13 @@ class AddExpenseFormContentState extends State<AddExpenseFormContent> {
       dropdownMenuEntries: dayOfWeek
           .map((val) => DropdownMenuEntry<String>(value: val, label: val))
           .toList(),
-      // dropdownColor: Theme.of(context).scaffoldBackgroundColor,
-      // focusColor: Theme.of(context).scaffoldBackgroundColor,
       onSelected: (val) => setState(() {
         if (val == null) {
           weeklyValue = null;
           return;
         }
 
-        weeklyValue = (dayOfWeek.indexOf(val) + 1) % 7;
+        weeklyValue = dayOfWeek.indexOf(val) % 7;
       }),
     ));
   }

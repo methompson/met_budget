@@ -323,6 +323,8 @@ class BudgetProvider extends ChangeNotifier {
 
     notifyListeners();
 
+    persistCategories();
+
     return newCategory;
   }
 
@@ -344,6 +346,8 @@ class BudgetProvider extends ChangeNotifier {
     _categories.remove(category.id);
 
     notifyListeners();
+
+    persistCategories();
 
     return response;
   }
@@ -444,6 +448,8 @@ class BudgetProvider extends ChangeNotifier {
 
     _deposits[response.deposit.id] = response.deposit;
 
+    persistDeposits();
+
     notifyListeners();
 
     return response;
@@ -532,6 +538,8 @@ class BudgetProvider extends ChangeNotifier {
 
     _withdrawals[response.withdrawal.id] = response.withdrawal;
 
+    persistWithdrawals();
+
     notifyListeners();
 
     return response;
@@ -603,6 +611,8 @@ class BudgetProvider extends ChangeNotifier {
     _budgets[cb.id] = updatedBudget;
 
     _reconciliations[response.id] = response;
+
+    persistReconciliations();
 
     notifyListeners();
 

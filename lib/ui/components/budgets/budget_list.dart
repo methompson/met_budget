@@ -33,23 +33,25 @@ class BudgetListState extends State<BudgetList> {
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionPanelList(
-      expansionCallback: (panelIndex, isExpanded) {
-        setState(() {
-          categories[panelIndex].isExpanded = isExpanded;
-        });
-      },
-      children: categories.map((e) {
-        return ExpansionPanel(
-          headerBuilder: (context, isExpanded) {
-            return ListTile(
-              title: Text(e.category.name),
-            );
-          },
-          body: CategoriesList(e.category),
-          isExpanded: e.isExpanded,
-        );
-      }).toList(),
+    return SingleChildScrollView(
+      child: ExpansionPanelList(
+        expansionCallback: (panelIndex, isExpanded) {
+          setState(() {
+            categories[panelIndex].isExpanded = isExpanded;
+          });
+        },
+        children: categories.map((e) {
+          return ExpansionPanel(
+            headerBuilder: (context, isExpanded) {
+              return ListTile(
+                title: Text(e.category.name),
+              );
+            },
+            body: CategoriesList(e.category),
+            isExpanded: e.isExpanded,
+          );
+        }).toList(),
+      ),
     );
   }
 }

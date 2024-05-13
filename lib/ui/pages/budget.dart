@@ -38,7 +38,9 @@ class _BudgetContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         BudgetHeader(),
-        BudgetList(),
+        Expanded(
+          child: BudgetList(),
+        ),
       ],
     );
   }

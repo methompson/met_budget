@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:met_budget/data_models/messaging_data.dart';
+import 'package:met_budget/global_state/messaging_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'package:met_budget/data_models/budget.dart';
@@ -138,6 +140,10 @@ class CategoryHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bp = context.watch<BudgetProvider>();
+    final expenses =
+        bp.expenses.values.where((ex) => ex.categoryId == category.id);
+
     return Container(
       color: Theme.of(context).colorScheme.inversePrimary,
       child: Container(
@@ -145,10 +151,20 @@ class CategoryHeader extends StatelessWidget {
         child: Row(
           children: [
             Text(category.name),
-            IconButton(
-              icon: Icon(Icons.add_circle_outline),
-              onPressed: () => openAddExpenseDialog(context, category.id),
-            ),
+            Expanded(
+                child: Row(
+              children: [
+                if (expenses.isEmpty)
+                  IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () => deleteCategory(context),
+                  ),
+                IconButton(
+                  icon: Icon(Icons.add_circle_outline),
+                  onPressed: () => openAddExpenseDialog(context, category.id),
+                ),
+              ],
+            )),
           ],
         ),
       ),
@@ -177,6 +193,23 @@ class CategoryHeader extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> deleteCategory(BuildContext context) async {
+    final msgProvider = context.read<MessagingProvider>();
+    final bp = context.read<BudgetProvider>();
+
+    msgProvider.setLoadingScreenData(LoadingScreenData(
+      message: 'Deleting Category',
+    ));
+    try {
+      await bp.deleteCategory(category);
+      msgProvider.showSuccessSnackbar('Category Deleted');
+    } catch (e) {
+      msgProvider.showErrorSnackbar('Failed to delete category: $e');
+    }
+
+    msgProvider.clearLoadingScreen();
   }
 }
 
@@ -211,7 +244,7 @@ class ExpenseCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () => deleteExpense(context),
                     icon: Icon(CupertinoIcons.delete),
                   )
                 ],
@@ -293,5 +326,22 @@ class ExpenseCard extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> deleteExpense(BuildContext context) async {
+    final msgProvider = context.read<MessagingProvider>();
+    final bp = context.read<BudgetProvider>();
+
+    msgProvider.setLoadingScreenData(LoadingScreenData(
+      message: 'Deleting Expense',
+    ));
+    try {
+      await bp.deleteExpense(expense);
+      msgProvider.showSuccessSnackbar('Expense Deleted');
+    } catch (e) {
+      msgProvider.showErrorSnackbar('Failed to delete expense: $e');
+    }
+
+    msgProvider.clearLoadingScreen();
   }
 }
